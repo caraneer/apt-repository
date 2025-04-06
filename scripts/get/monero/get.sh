@@ -24,7 +24,6 @@ echo "Preparing package directory..."
 rm -rf "$PKGROOT"
 mkdir -p "$PKGROOT/DEBIAN"
 mkdir -p "$PKGROOT/usr/bin"
-mkdir -p "$PKGROOT/lib/systemd/system"
 
 # Copy all monero* executables to /usr/bin
 for bin in "$EXTRACT_DIR"/monero*; do
@@ -37,8 +36,10 @@ done
 # Copy control and service files
 sed "s/VERSION_REPLACEME/$VERSION/" "$SOURCEDIR/DEBIAN/control" > "$PKGROOT/DEBIAN/control"
 cp "$SOURCEDIR/DEBIAN/postinst" "$PKGROOT/DEBIAN/postinst"
+cp "$SOURCEDIR/DEBIAN/templates" "$PKGROOT/DEBIAN/templates"
 chmod 0755 "$PKGROOT/DEBIAN/postinst"
-cp "$SOURCEDIR/lib/systemd/system/monerod.service" "$PKGROOT/lib/systemd/system/monerod.service"
+cp -R "$SOURCEDIR/lib" "$PKGROOT/lib"
+cp -R "$SOURCEDIR/usr" "$PKGROOT/usr"
 
 echo "Building package..."
 pool_dir="${WEBROOT_DIR}/pool/${PKG_DISTRO}/third-party/monero";

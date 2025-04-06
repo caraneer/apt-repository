@@ -1,0 +1,13 @@
+data-dir = "/var/lib/monerod"
+log-file = "/var/log/monerod/monerod.log"
+rpc-bind-port = {{ get_answer("monero/rpc-port") }}
+p2p-bind-port = {{ get_answer("monero/p2p-port") }}
+restricted-rpc = {{ get_answer("monero/restricted-rpc@high") | toml_encode_value }}
+{% if get_answer("monero/no-igd@high") %}no-igd=1{% endif %}
+{% if get_answer("monero/disable-rpc-ban@high") %}disable-rpc-ban=1{% endif %}
+{% set outpeers = get_answer("monero/outpeers") | int(default=0) %}
+{% if outpeers > 0 %}out-peers = {{ outpeers }}{% endif %}
+{% set inpeers = get_answer("monero/inpeers") | int(default=0) %}
+{% if inpeers > 0 %}in-peers = {{ inpeers }}{% endif %}
+{% set rpc_user = get_answer("monero/rpc-username") %}
+{% if rpc_user and rpc_user != "" %}rpc-login = "{{ rpc_user }}:{{ get_answer("monero/rpc-password") }}"{% endif %}
