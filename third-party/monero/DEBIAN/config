@@ -1,0 +1,4 @@
+#!/bin/bash
+if [ "$1" = "reconfigure" ]; then
+	touch "/tmp/monerod.reconfigure";
+fi;

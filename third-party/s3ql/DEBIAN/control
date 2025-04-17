@@ -1,0 +1,8 @@
+Package: s3ql
+Version: VERSION_REPLACEME
+Section: admin
+Priority: optional
+Architecture: all
+Depends: python3, python3-venv, fuse3, simconf (>=0.3.1), simconf (<<0.5.0)
+Maintainer: Aritz Beobide-Cardinal <aritz@caraneer.ca>
+Description: Config package to mount S3QL volumes with systemd and simconf

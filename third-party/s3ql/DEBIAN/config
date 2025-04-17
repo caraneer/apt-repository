@@ -1,0 +1,6 @@
+#!/bin/bash
+set -e
+if [ "$1" = "reconfigure" ]; then
+  # Marker for postinst later
+  touch "/tmp/caraneer-config-s3ql.reconfigure";
+fi;

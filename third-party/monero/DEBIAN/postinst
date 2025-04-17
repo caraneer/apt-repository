@@ -1,0 +1,27 @@
+#!/bin/bash
+set -e
+
+SERVICE_NAME="monerod"
+SERVICE_USER="monerod"
+SERVICE_CONF_DIR="/etc/monerod"
+
+if [ "$1" = "configure" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		# Stuff before simconf
+		if ! id "$SERVICE_USER" >/dev/null 2>&1; then
+			useradd --system --home /var/lib/monerod --shell /usr/sbin/nologin "$SERVICE_USER"
+		fi
+		mkdir -p /var/lib/monerod /var/log/monerod "$SERVICE_CONF_DIR"
+		chown -R "$SERVICE_USER":"$SERVICE_USER" /var/lib/monerod /var/log/monerod
+		exec -a "$0" simconf execute-templates \
+			$(if [ -f "/tmp/my-package.reconfigure" ]; then echo "--reconfigure"; fi) \
+			--exec-deb-script \
+			"/usr/share/my-package/simconf" \
+			"/etc/my-package" \
+			-- "$@";
+	fi;
+	rm -f "/tmp/my-package.reconfigure" || true;
+	# Stuff after simconf
+fi;
+
+systemctl daemon-reexec

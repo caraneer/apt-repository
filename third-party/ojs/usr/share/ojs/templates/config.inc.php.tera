@@ -1,0 +1,13 @@
+<?php return [
+    'base_url' => 'https://{{ get_answer("ojs/domain") }}',
+    'installed' => false,
+    'files_dir' => '/var/lib/ojs/files',
+    'cache_dir' => '/var/cache/ojs',
+    'database' => [
+        'driver' => 'mysqli',
+        'host' => '{{ get_answer("ojs/db-host") }}',
+        'username' => '{{ get_answer("ojs/db-user") }}',
+        'password' => '{{ get_answer("ojs/db-password") }}',
+        'name' => '{{ get_answer("ojs/db-name") }}',
+    ],
+];

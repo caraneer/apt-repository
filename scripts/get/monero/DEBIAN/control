@@ -1,7 +1,0 @@
-Package: monero
-Version: VERSION_REPLACEME
-Section: net
-Priority: optional
-Architecture: amd64
-Maintainer: ARitz Cracker aritz@aritzcracker.ca
-Description: Monero full node daemon and CLI tools

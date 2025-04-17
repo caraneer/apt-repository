@@ -1,0 +1,23 @@
+[Unit]
+Description=Monero Full Node
+After=network.target
+
+[Service]
+User=monerod
+Group=monerod
+Type=forking
+ExecStart=/usr/bin/monerod --detach \
+    --non-interactive \
+    --config-file=/etc/monerod/monerod.conf \
+    --data-dir=/var/lib/monerod \
+    --log-file=/var/log/monerod/monerod.log \
+    --pidfile=/var/lib/monerod/monerod.pid
+PIDFile=/var/lib/monerod/monerod.pid
+Restart=on-failure
+RestartSec=10
+PrivateTmp=true
+ProtectSystem=full
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

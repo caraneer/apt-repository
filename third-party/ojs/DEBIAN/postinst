@@ -1,0 +1,25 @@
+#!/bin/bash
+set -e
+
+# Create system user
+if ! id ojs >/dev/null 2>&1; then
+    useradd --system --home /var/lib/ojs --shell /usr/sbin/nologin ojs
+fi
+
+mkdir -p /var/lib/ojs /var/cache/ojs
+chown -R ojs:ojs /var/lib/ojs /var/cache/ojs
+
+# Create symlink for nginx config
+if [ ! -e /etc/nginx/conf.d/ojs.conf ]; then
+    ln -s /usr/share/ojs/nginx_service.conf /etc/nginx/conf.d/ojs.conf
+fi
+
+# Symlink php-fpm pool config if php-fpm version exists
+PHP_FPM_DIR=$(find /etc/php/ -type d -path "*/fpm/pool.d" | head -n1)
+if [ -n "$PHP_FPM_DIR" ] && [ ! -e "$PHP_FPM_DIR/ojs.conf" ]; then
+    ln -s /usr/share/ojs/php-fpm-pool.conf "$PHP_FPM_DIR/ojs.conf"
+fi
+
+# Reload services
+systemctl reload nginx || true
+systemctl reload php*-fpm || true

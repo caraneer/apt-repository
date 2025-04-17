@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+
+MOUNTS_FILE="/etc/s3ql/mounts"
+AUTH_FILE="/etc/s3ql/authinfo2"
+
+if [[ ! -f "$MOUNTS_FILE" ]]; then
+    echo "Mounts file not found: $MOUNTS_FILE"
+    exit 0
+fi
+
+while read -r url mount_point; do
+    [[ -z "$url" || -z "$mount_point" ]] && continue
+
+    if mountpoint -q "$mount_point"; then
+        echo "Already mounted: $mount_point"
+        continue
+    fi
+
+    mkdir -p "$mount_point"
+
+    echo "Mounting $url to $mount_point"
+    mount.s3ql "$url" "$mount_point" \
+        --authfile "$AUTH_FILE" \
+        --allow-other \
+        --cachedir "/var/cache/s3ql/$(basename "$mount_point")" \
+        || echo "Failed to mount $url"
+done < "$MOUNTS_FILE"

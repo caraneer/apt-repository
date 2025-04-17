@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+if [ "$1" = "purge" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		exec -a "$0" simconf purge \
+			--exec-deb-script \
+			-- "$@";
+	fi;
+	systemctl stop --now s3ql-update.timer || true
+	systemctl stop --now s3ql-mounts.service || true
+	systemctl disable --now s3ql-update.timer || true
+	systemctl disable --now s3ql-mounts.service || true
+	rm -rf /opt/s3ql-venv
+	rm -f /usr/sbin/mount.s3ql /usr/sbin/umount.s3ql /usr/sbin/mkfs.s3ql
+fi;

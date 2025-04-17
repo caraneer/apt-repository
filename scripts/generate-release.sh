@@ -21,13 +21,13 @@ do_hash() {
 }
 folders=$(find . -maxdepth 1 -type d ! -name "* *" ! -name "." -printf "%f ")
 cat << EOF
-Origin: ARitz Cracker's Stuff
-Label: aritzcracker
+Origin: Caraneer Software Inc. Debian package repository
+Label: caraneer
 Suite: stable
 Codename: ${distro}
-Architectures: arm64 amd64
+Architectures: all arm64 amd64
 Components: ${folders}
-Description: APT Repository for distributing various software that doesn't already ship fresh .deb packages.
+Description: Software distribution for Caraneer Software Inc. Provided AS-IS.
 Date: $(date -Ru)
 EOF
 do_hash "MD5Sum" "md5sum"

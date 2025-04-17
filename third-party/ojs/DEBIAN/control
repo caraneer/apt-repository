@@ -1,0 +1,8 @@
+Package: ojs
+Version: VERSION_REPLACEME
+Section: web
+Priority: optional
+Architecture: all
+Maintainer: ARitz Cracker aritz@aritzcracker.ca
+Depends: nginx, php-fpm, php-mysql, php-xml, php-gd, php-mbstring, php-curl, php-zip, php-intl, simconf (>=0.3.1), simconf (<0.5.0)
+Description: Open Journal Systems - web-based journal management and publishing system

@@ -1,0 +1,32 @@
+#!/bin/bash
+set -e
+if [ "$1" = "configure" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		mkdir -p /etc/s3ql;
+		exec -a "$0" simconf execute-templates \
+			$(if [ -f "/tmp/caraneer-config-s3ql.reconfigure" ]; then echo "--reconfigure"; fi) \
+			--verbose \
+			--exec-deb-script \
+			"/usr/share/caraneer-config-s3ql/templates" \
+			"/etc/s3ql" \
+			-- "$@";
+	fi;
+	# Set up fresh venv
+	if [ -d /opt/s3ql-venv ]; then
+		systemctl stop s3ql-mounts.service
+		systemctl stop s3ql-update.timer
+		rm -rf /opt/s3ql-venv;
+	fi
+	python3 -m venv /opt/s3ql-venv
+
+	# 2. Copy unpacked tarball contents into the venv
+	cp -r /usr/share/s3ql/* /opt/s3ql-venv
+
+	# 3. Install s3ql into the venv using its setup.py
+	export PATH="/opt/s3ql-venv/bin:$PATH";
+	export VIRTUAL_ENV="/opt/s3ql-venv";
+	/opt/s3ql-venv/bin/pip install --upgrade pip setuptools
+	/opt/s3ql-venv/bin/python /opt/s3ql-venv/setup.py install
+
+	rm -f "/tmp/caraneer-config-s3ql.reconfigure" || true;
+fi;

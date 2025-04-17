@@ -1,0 +1,26 @@
+default_language = "en"
+
+[config."s3ql/mounts.amount"]
+type = "string"
+description.en = "How many S3QL-backed filesystems do you want to configure?"
+default = "0"
+
+[config."s3ql/mounts.template.endpoint"]
+type = "string"
+description.en = "S3 endpoint (e.g. bucket.s3.ca-central-1.io.cloud.ovh.net)"
+
+[config."s3ql/mounts.template.access_key"]
+type = "string"
+description.en = "S3 Access Key for this mount"
+
+[config."s3ql/mounts.template.secret_key"]
+type = "password"
+description.en = "S3 Secret Key for this mount"
+
+[config."s3ql/mounts.template.mount_path"]
+type = "string"
+description.en = "Where should this S3 bucket be mounted locally?"
+
+[config."s3ql/mounts/amount-invalid"]
+type = "error"
+description.en = "Please enter a valid whole number of mount points (e.g. 1, 2, 3...)."

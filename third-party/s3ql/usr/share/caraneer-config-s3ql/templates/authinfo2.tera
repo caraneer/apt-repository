@@ -1,0 +1,11 @@
+{%- for entry in get_answer_array(
+    q_prefix="s3ql/mounts",
+    q_object_keys=["endpoint", "access_key", "secret_key", "mount_path"],
+    amount_invalid_message="s3ql/mounts/amount-invalid"
+) %}
+[s3://{{ entry.endpoint }}/]
+storage-url: s3://{{ entry.endpoint }}/
+backend-login: {{ entry.access_key }}
+backend-password: {{ entry.secret_key }}
+
+{%- endfor %}

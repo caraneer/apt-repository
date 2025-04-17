@@ -1,0 +1,13 @@
+[Unit]
+Description=Mount all s3ql volumes from /etc/s3ql/mounts
+After=network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/s3ql/mounts
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/s3ql-mount-all
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target

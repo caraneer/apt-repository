@@ -1,0 +1,53 @@
+Template: monero/rpc-port
+Type: string
+Default: 18081
+Description: Port for RPC connections
+ Set this to the port your local applications will use to access monerod.
+
+Template: monero/p2p-port
+Type: string
+Default: 18080
+Description: Port for peer-to-peer connections
+ Set this to the port monerod will use to communicate with other nodes.
+
+Template: monero/restricted-rpc
+Type: boolean
+Default: true
+Description: Enable restricted RPC
+ Restricts what commands can be run over RPC for external applications.
+
+Template: monero/no-igd
+Type: boolean
+Default: false
+Description: Disable UPnP IGD port forwarding
+ Prevents monerod from attempting to automatically forward ports using UPnP.
+
+Template: monero/disable-rpc-ban
+Type: boolean
+Default: false
+Description: Disable automatic RPC IP banning
+ Prevents IPs from being banned after issuing invalid RPC requests.
+
+Template: monero/outpeers
+Type: string
+Default: 24
+Description: Limit number of outgoing peers
+ Optionally specify the maximum number of outgoing peer connections.
+
+Template: monero/inpeers
+Type: string
+Default: 48
+Description: Limit number of incoming peers
+ Optionally specify the maximum number of incoming peer connections.
+
+Template: monero/rpc-username
+Type: string
+Default: 
+Description: RPC username
+ Optional: Specify a username required for RPC connections.
+
+Template: monero/rpc-password
+Type: password
+Default: 
+Description: RPC password
+ Optional: Specify a password to pair with the RPC username.

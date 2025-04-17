@@ -1,0 +1,10 @@
+#!/bin/bash
+if [ "$1" = "purge" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		# Stuff to do before simconf executes here
+		exec -a "$0" simconf purge \
+		--exec-deb-script \
+		-- "$@";
+	fi;
+	# Stuff to do before after executes here
+fi;
