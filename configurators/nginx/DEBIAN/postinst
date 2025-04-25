@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+if [ "$1" = "configure" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		mkdir -p /etc/caraneer-config-nginx;
+		exec -a "$0" simconf execute-templates \
+			$(if [ -f "/tmp/caraneer-config-nginx.reconfigure" ]; then echo "--reconfigure"; fi) \
+			--exec-deb-script \
+			"/usr/share/caraneer-config-nginx/templates" \
+			"/etc/nginx/conf.d" \
+			-- "$@";
+	fi;
+	DHPARAM_PATH="/etc/caraneer-config-nginx/dh-parameters.4096";
+	if
+		grep -q "$DHPARAM_PATH" /etc/nginx/conf.d/90-caraneer-config.conf &&
+		! [ -f "$DHPARAM_PATH" ];
+	then
+		openssl dhparam -out /etc/mace-machine-ext-config/dh-parameters.4096 4096
+	fi;
+	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
+        deb-systemd-invoke reload nginx.service || true
+    fi
+fi;

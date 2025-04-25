@@ -1,6 +1,6 @@
 [config."caraneer-config-acmetool/domain-amount-invalid"]
 type = "error_message"
-description.en = "Invalid amount\nThe amount of authorized organizations must be an integer greater than 0."
+description.en = "Invalid amount\nThe amount of domains must be an integer greater than 0."
 
 [config."caraneer-config-acmetool/domain.amount"]
 type = "string"
@@ -15,28 +15,28 @@ default = ""
 [config."caraneer-config-acmetool/email"]
 type = "string"
 description.en = "E-mail address to submit to the ACME server"
-default = "hostmaster@mace.ag"
+default = "hostmaster@caranner.ca"
 
 [config."caraneer-config-acmetool/legal-agreement"]
 type = "string"
-description.en = "URL to the legal agreement which you _totally_ read. Must match what's returned by the ACME server."
-default = "https://letsencrypt.org/documents/LE-SA-v1.5-February-24-2025.pdf"
+description.en = "URL to the legal agreement which you _totally_ read.\nMust match the \"termsOfService\" in the ACME directory URL."
+default = ""
 
 [config."caraneer-config-acmetool/endpoint"]
 type = "string"
-description.en = "ACME directory URL. You can go here for reference: https://github.com/hlandau/acmeapi/blob/master/acmeendpoints/endpoints.go"
+description.en = "ACME directory URL.\nYou can go here for reference: https://github.com/hlandau/acmeapi/blob/master/acmeendpoints/endpoints.go"
 # https://github.com/hlandau/acmeapi/blob/master/acmeendpoints/endpoints.go
 default = "https://acme-staging-v02.api.letsencrypt.org/directory"
 
 [config."caraneer-config-acmetool/method"]
 type = { "single_choice" = [
-	{ value = "webroot",   description.en = "Webroot" },
+	{ value = "webroot", description.en = "Webroot" },
 	{ value = "proxy", description.en = "Proxy" },
-	{ value = "redirector",    description.en = "Redirector" },
-	{ value = "listen",    description.en = "Listen" },
-	{ value = "stateless",    description.en = "Stateless" },
-	{ value = "hook",    description.en = "Hook" }
-]}
+	{ value = "redirector", description.en = "Redirector" },
+	{ value = "listen", description.en = "Listen" },
+	{ value = "stateless", description.en = "Stateless" },
+	{ value = "hook", description.en = "Hook" },
+] }
 description.en = "Challenge Conveyance Method"
 default = "webroot"
 

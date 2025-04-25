@@ -1,0 +1,95 @@
+[config."caraneer-config-nginx/common_webroot"]
+# This is converted to string later on
+type = "string"
+description.en = "Common webroot. Optionally used for the \".well-known\" directory and error messages."
+default = "/srv/www"
+
+
+[config."caraneer-config-nginx/domain-amount-invalid"]
+type = "error_message"
+description.en = "Invalid amount\nThe amount of domains must be an integer greater than 0."
+
+[config."caraneer-config-nginx/domain.amount"]
+type = "string"
+description.en = "Amount of domains for nginx to serve"
+default = 0
+
+[config."caraneer-config-nginx/domain.template.name"]
+type = "string"
+description.en = "nginx domain #${index}"
+default = ""
+
+[config."caraneer-config-nginx/domain.template.ssl_path"]
+type = "string"
+description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exists in the specified folder.\nIf either files don't exist, https will not be enabled."
+default = ""
+
+[config."caraneer-config-nginx/domain.template.404_page"]
+type = "string"
+description.en = "Page to serve for 404 errors. Leave blank for nginx's default behaviour."
+default = ""
+
+[config."caraneer-config-nginx/domain.template.410_page"]
+type = "string"
+description.en = "Page to serve for 410 errors. Leave blank for nginx's default behaviour."
+default = ""
+
+[config."caraneer-config-nginx/domain.template.451_page"]
+type = "string"
+description.en = "Page to serve for 451 errors. Leave blank for nginx's default behaviour."
+default = ""
+
+[config."caraneer-config-nginx/domain.template.502_page"]
+type = "string"
+description.en = "Page to serve for 502 errors. Leave blank for nginx's default behaviour."
+default = ""
+
+[config."caraneer-config-nginx/domain.template.504_page"]
+type = "string"
+description.en = "Page to serve for 504 errors. Leave blank for nginx's default behaviour."
+default = ""
+
+[config."caraneer-config-nginx/domain.template.webroot"]
+type = "string"
+description.en = "Directory for domain #${index} webroot\nIf this is a proxy-only install, this must be blank."
+default = "/srv/www"
+
+[config."caraneer-config-nginx/domain.template.php_socket"]
+type = "string"
+description.en = "Path to PHP's fastcgi socket for domain #${index}\nUsually \"/var/run/php/php-fpm.sock\".\nLeave blank to disable PHP."
+default = ""
+
+[config."caraneer-config-nginx/domain._.webroots.amount"]
+type = "string"
+description.en = "Amount of additional static-file locations"
+default = 0
+
+[config."caraneer-config-nginx/domain._.webroots.template.location"]
+type = "string"
+description.en = "${domain} static-file location rule #${index}"
+default = "/"
+
+[config."caraneer-config-nginx/domain._.webroots.template.folder"]
+type = "string"
+description.en = "Folder path for ${domain} location #${index}"
+default = "/srv/www"
+
+[config."caraneer-config-nginx/domain._.proxies.amount"]
+type = "string"
+description.en = "Amount of proxy \"location\" rules for ${domain}?"
+default = 0
+
+[config."caraneer-config-nginx/domain._.proxies.template.location"]
+type = "string"
+description.en = "${domain} proxy location rule #${index}"
+default = "/"
+
+[config."caraneer-config-nginx/domain._.proxies.template.upstream"]
+type = "string"
+# Maybe one day I'll make this more comprehensive, but this works for now
+description.en = "${domain} proxy #${index} upstream definition\nThe specified string will be placed verbatim in the body of an upstream definition.\nSee https://nginx.org/en/docs/http/ngx_http_upstream_module.html for more details."
+default = "server 127.0.0.1:3000;"
+
+[config."caraneer-config-nginx/location-amount-invalid"]
+type = "error_message"
+description.en = "Invalid amount\nThe amount of domains must be an integer greater than 0 or equal to 0"

@@ -1,0 +1,35 @@
+#!/bin/bash
+set -e
+if [ "$1" = "configure" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		mkdir -p /etc/caraneer-config-acmetool;
+		exec -a "$0" simconf execute-templates \
+			$(if [ -f "/tmp/caraneer-config-acmetool.reconfigure" ]; then echo "--reconfigure"; fi) \
+			--exec-deb-script \
+			"/usr/share/caraneer-config-acmetool/templates" \
+			"/etc/caraneer-config-acmetool" \
+			-- "$@";
+	fi;
+	# Auto-generated list of domains from simconf
+	chmod +x /etc/caraneer-config-acmetool/domains.sh;
+
+	# Temporarily set to "listen" for bootstrapping
+	deb-systemd-invoke stop nginx || true
+	RESPONSE_FILE="/etc/caraneer-config-acmetool/quickstart.yml"
+	KEY="acmetool-quickstart-choose-method"
+	ORIGINAL_VALUE=$(grep "\"$KEY\":" "$RESPONSE_FILE" | sed -E 's/.*: "(.*)"/\1/');
+	sed -i.bak -E "s/(\"$KEY\": )\"[^\"]*\"/\1\"listen\"/" "$RESPONSE_FILE";
+
+	# Run acmetool
+	acmetool quickstart --batch --response-file="$RESPONSE_FILE"
+	/etc/caraneer-config-acmetool/domains.sh
+
+	# Restore desired settings
+	sed -i -E "s/(\"$KEY\": )\"[^\"]*\"/\1\"$ORIGINAL_VALUE\"/" "$RESPONSE_FILE"
+	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
+        deb-systemd-invoke start nginx.service || true
+    fi
+	acmetool quickstart --batch --response-file="$RESPONSE_FILE"
+	
+	rm -f "/tmp/caraneer-config-acmetool.reconfigure" || true;
+fi;
