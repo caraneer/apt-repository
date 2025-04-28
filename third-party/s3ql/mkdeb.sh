@@ -36,15 +36,15 @@ mkdir -p $PKGROOT/usr/share/s3ql;
 tar -xzf "$WORKDIR/s3ql.tar.gz" --strip-components=1 -C "$PKGROOT/usr/share/s3ql"
 
 for bin in "$PKGROOT/usr/share/s3ql/bin"/*; do
-    base=$(basename "$bin")
-    wrapper="$PKGROOT/usr/sbin/$base"
-    echo "#!/bin/sh
+	base=$(basename "$bin")
+	wrapper="$PKGROOT/usr/sbin/$base"
+	echo "#!/bin/sh
 VENV_DIR=\"/opt/s3ql-venv\"
 export PATH=\"\$VENV_DIR/bin:\$PATH\"
 export VIRTUAL_ENV=\"\$VENV_DIR\"
 exec \"\$VENV_DIR/bin/$base\" \"\$@\"
 " > "$wrapper"
-    chmod +x "$wrapper"
+	chmod +x "$wrapper"
 done
 
 echo "Building package..."

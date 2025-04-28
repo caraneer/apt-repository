@@ -6,10 +6,9 @@ MOUNTS_FILE="/etc/s3ql/mounts"
 [[ ! -f "$MOUNTS_FILE" ]] && exit 0
 
 tac "$MOUNTS_FILE" | while read -r _ mount_point; do
-    [[ -z "$mount_point" ]] && continue
-
-    if mountpoint -q "$mount_point"; then
-        echo "Unmounting $mount_point"
-        umount.s3ql "$mount_point" || echo "Failed to unmount $mount_point"
-    fi
+	[[ -z "$mount_point" ]] && continue
+	if mountpoint -q "$mount_point"; then
+		echo "Unmounting $mount_point"
+		umount.s3ql "$mount_point" || echo "Failed to unmount $mount_point"
+	fi
 done

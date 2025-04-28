@@ -11,22 +11,32 @@ if [ "$1" = "configure" ]; then
 			"/etc/s3ql" \
 			-- "$@";
 	fi;
-	# Set up fresh venv
-	if [ -d /opt/s3ql-venv ]; then
-		systemctl stop s3ql-mounts.service
-		systemctl stop s3ql-update.timer
-		rm -rf /opt/s3ql-venv;
+	chmod 600 /etc/s3ql/authinfo2
+	# Set up fresh venv, but only do so if this isn't a reconfigure
+	deb-systemd-invoke stop s3ql-mounts.service
+	if ! [ -f "/tmp/caraneer-config-s3ql.reconfigure" ] || ! [ -d /opt/s3ql-venv ]; then
+		if [ -d /opt/s3ql-venv ]; then
+			rm -rf /opt/s3ql-venv;
+		fi
+		python3 -m venv /opt/s3ql-venv
+		# 2. Copy original tarball contents into the venv
+		cp -r /usr/share/s3ql/* /opt/s3ql-venv
+
+		# 3. Install s3ql into the venv using its setup.py
+		export PATH="/opt/s3ql-venv/bin:$PATH";
+		export VIRTUAL_ENV="/opt/s3ql-venv";
+		# Dependencies listed from https://www.rath.org/s3ql-docs/installation.html#running-s3ql-commands-directly
+		pushd $VIRTUAL_ENV;
+		/opt/s3ql-venv/bin/pip install \
+			apsw cryptography defusedxml trio pyfuse3 pytest \
+			requests google-auth google-auth-oauthlib pytest_trio
+		/opt/s3ql-venv/bin/python /opt/s3ql-venv/setup.py build_ext --inplace
+		# /opt/s3ql-venv/bin/python -m pytest /opt/s3ql-venv/tests/
+		popd
 	fi
-	python3 -m venv /opt/s3ql-venv
-
-	# 2. Copy unpacked tarball contents into the venv
-	cp -r /usr/share/s3ql/* /opt/s3ql-venv
-
-	# 3. Install s3ql into the venv using its setup.py
-	export PATH="/opt/s3ql-venv/bin:$PATH";
-	export VIRTUAL_ENV="/opt/s3ql-venv";
-	/opt/s3ql-venv/bin/pip install --upgrade pip setuptools
-	/opt/s3ql-venv/bin/python /opt/s3ql-venv/setup.py install
-
 	rm -f "/tmp/caraneer-config-s3ql.reconfigure" || true;
+	if deb-systemd-helper deb-systemd-helper-enabled s3ql-mounts.service; then
+        deb-systemd-invoke start s3ql-mounts.service || true
+    fi
+	systemctl daemon-reload || true
 fi;

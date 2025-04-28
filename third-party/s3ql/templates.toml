@@ -5,17 +5,34 @@ type = "string"
 description.en = "How many S3QL-backed filesystems do you want to configure?"
 default = "0"
 
-[config."s3ql/mounts.template.endpoint"]
+[config."s3ql/mounts.template.scheme"]
+type = { "select" = [
+  { value = "s3", description.en = "AWS s3" },
+  { value = "s3c", description.en = "Non-AWS s3 (v2 auth)" },
+  { value = "s3c4", description.en = "Non-AWS s3 (v4 auth)" },
+]}
+description.en = "Protocol for mount #${index}"
+default = "s3c"
+
+[config."s3ql/mounts.template.hostname"]
 type = "string"
-description.en = "S3 endpoint (e.g. bucket.s3.ca-central-1.io.cloud.ovh.net)"
+description.en = "Host for mount #${index}\nEnter AWS region if this is an AWS s3, or the hostname if this is a non-AWS s3."
+
+[config."s3ql/mounts.template.bucket"]
+type = "string"
+description.en = "Name of the bucket for mount #${index}"
+
+[config."s3ql/mounts.template.encryption_secret"]
+type = "string"
+description.en = "Client-side encryption secret for #${index}\nThe mount will be unencrypted if blank"
 
 [config."s3ql/mounts.template.access_key"]
 type = "string"
-description.en = "S3 Access Key for this mount"
+description.en = "S3 Access Key for mount #${index}"
 
 [config."s3ql/mounts.template.secret_key"]
 type = "password"
-description.en = "S3 Secret Key for this mount"
+description.en = "S3 Secret Key for mount #${index}"
 
 [config."s3ql/mounts.template.mount_path"]
 type = "string"

@@ -1,11 +1,12 @@
 {%- for entry in get_answer_array(
-    q_prefix="s3ql/mounts",
-    q_object_keys=["endpoint", "access_key", "secret_key", "mount_path"],
-    amount_invalid_message="s3ql/mounts/amount-invalid"
+	q_prefix="s3ql/mounts",
+	q_object_keys=["scheme", "hostname", "bucket", "access_key", "secret_key", "encryption_secret", "mount_path"],
+	amount_invalid_message="s3ql/mounts/amount-invalid"
 ) %}
-[s3://{{ entry.endpoint }}/]
-storage-url: s3://{{ entry.endpoint }}/
+[entry{{ loop.index }}]
+storage-url: {{ entry.scheme }}://{{ entry.hostname }}/{{ entry.bucket }}
 backend-login: {{ entry.access_key }}
 backend-password: {{ entry.secret_key }}
+{% if entry.encryption_secret %}fs-passphrase: {{ entry.encryption_secret }}{% endif %}
 
 {%- endfor %}
