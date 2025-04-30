@@ -1,25 +1,30 @@
 {%- set _ = template_alias(
 	template="caraneer-config-nginx/domain._.webroots.amount",
-	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.amount"
+	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.amount"
 ) -%}
 {%- set _ = template_alias(
 	template="caraneer-config-nginx/domain._.webroots.template.location",
-	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.template.location"
+	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.location"
 ) -%}
 {%- set _ = template_alias(
 	template="caraneer-config-nginx/domain._.webroots.template.folder",
-	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.template.upstream"
+	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.upstream"
+) -%}
+{%- set _ = template_alias(
+	template="caraneer-config-nginx/domain._.webroots.template.autoindex",
+	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.autoindex"
 ) -%}
 {%- for location_entry in get_answer_array(
     q_prefix="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots",
     q_object_keys=[
 		"location",
 		"folder",
+		"autoindex",
 	],
     amount_invalid_message="caraneer-config-nginx/location-amount-invalid"
 ) %}
 	location {{ location_entry.location }} {
 		try_files $uri $uri/ =404;
-		root {{ domain_entry.folder }};
+		root {{ location_entry.folder }};{% if location_entry.autoindex %} autoindex on;{% endif %}
 	}
 {%- endfor -%}

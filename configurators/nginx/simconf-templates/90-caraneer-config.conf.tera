@@ -60,11 +60,11 @@ server {
 	index{% if domain_entry.php_socket %} index.php{% endif %} index.html index.htm;
 	{% if domain_entry.webroot %}location / {
 		try_files $uri $uri/ /index.php$uri =404;
-		root {{ domain_entry.webroot }};
+		root {{ domain_entry.webroot }};{% if domain_entry.autoindex %} autoindex on;{% endif %}
 	}{% endif %}
 	{% if domain_entry.php_socket %}map $request_uri $set_path_translated {
 		default 0;
-		~^/index\.php/ 1;
+		~\.php/ 1;
 	}
 	location ~ ^(\/.+\.php)([\/?].*)?$ {
     	client_max_body_size 12M;

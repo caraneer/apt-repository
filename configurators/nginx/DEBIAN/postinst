@@ -15,7 +15,7 @@ if [ "$1" = "configure" ]; then
 		grep -q "$DHPARAM_PATH" /etc/nginx/conf.d/90-caraneer-config.conf &&
 		! [ -f "$DHPARAM_PATH" ];
 	then
-		openssl dhparam -out /etc/mace-machine-ext-config/dh-parameters.4096 4096
+		openssl dhparam -out "$DHPARAM_PATH" 4096
 	fi;
 	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
         deb-systemd-invoke reload nginx.service || true

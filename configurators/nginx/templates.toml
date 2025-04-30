@@ -51,8 +51,13 @@ default = ""
 
 [config."caraneer-config-nginx/domain.template.webroot"]
 type = "string"
-description.en = "Directory for domain #${index} webroot\nIf this is a proxy-only install, this must be blank."
+description.en = "Directory for domain #${index} webroot\nIf you're going to proxy \"/\", then this must be blank."
 default = "/srv/www"
+
+[config."caraneer-config-nginx/domain.template.autoindex"]
+type = "boolean"
+description.en = "Display the contents of a folder if an index file does not exist\nThis will not apply if \"/\" is proxied"
+default = false
 
 [config."caraneer-config-nginx/domain.template.php_socket"]
 type = "string"
@@ -73,6 +78,11 @@ default = "/"
 type = "string"
 description.en = "Folder path for ${domain} location #${index}"
 default = "/srv/www"
+
+[config."caraneer-config-nginx/domain._.webroots.template.autoindex"]
+type = "boolean"
+description.en = "Display the contents of a folder if an index file does not exist\nThis will not apply if \"/\" is proxied"
+default = false
 
 [config."caraneer-config-nginx/domain._.proxies.amount"]
 type = "string"
