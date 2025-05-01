@@ -29,7 +29,7 @@ if [ "$1" = "configure" ]; then
 		pushd $VIRTUAL_ENV;
 		/opt/s3ql-venv/bin/pip install \
 			apsw cryptography defusedxml trio pyfuse3 pytest \
-			requests google-auth google-auth-oauthlib pytest_trio
+			requests google-auth google-auth-oauthlib pytest_trio setuptools
 		/opt/s3ql-venv/bin/python /opt/s3ql-venv/setup.py build_ext --inplace
 		# /opt/s3ql-venv/bin/python -m pytest /opt/s3ql-venv/tests/
 		popd
