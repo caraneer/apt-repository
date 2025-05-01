@@ -1,0 +1,8 @@
+Package: nebula
+Version: VERSION_REPLACEME
+Section: net
+Priority: optional
+Architecture: amd64
+Maintainer: Aritz Beobide‑Cardinal <aritz@caraneer.ca>
+Depends: simconf (>=0.3.1), simconf (<<0.5.0)
+Description: Nebula – secure overlay networking (SlackHQ)

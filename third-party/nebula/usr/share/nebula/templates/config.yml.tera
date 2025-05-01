@@ -1,0 +1,27 @@
+pki:
+  ca:   {{ get_answer(q="nebula/pki.ca@high")   | toml_encode_value }}
+  cert: {{ get_answer(q="nebula/pki.cert@high") | toml_encode_value }}
+  key:  {{ get_answer(q="nebula/pki.key@high")  | toml_encode_value }}
+
+lighthouse:
+  am_lighthouse: {{ get_answer(q="nebula/lighthouse.am_lighthouse@high") | toml_encode_value }}
+  interval: {{ get_answer(q="nebula/lighthouse.interval@high") }}
+  hosts:
+{% for host in get_answer(q="nebula/lighthouse.hosts@high") | split(pat=",") %}
+    - "{{ host | trim }}"
+{% endfor %}
+
+listen:
+  host: {{ get_answer(q="nebula/listen.host@high") }}
+  port: {{ get_answer(q="nebula/listen.port@high") }}
+
+firewall:
+  conntrack: true
+  outbound:
+    - port: any
+      proto: any
+      host: any
+  inbound:
+    - port: any
+      proto: any
+      host: any

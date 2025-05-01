@@ -1,0 +1,30 @@
+#!/bin/bash
+set -euo pipefail
+
+SERVICE_NAME="nebula"
+SERVICE_USER="nebula"
+CONF_DIR="/etc/nebula"
+TEMPLATE_DIR="/usr/share/nebula/templates"
+
+if [[ "$1" = "configure" ]]; then
+    # create service user if missing
+    if ! id "$SERVICE_USER" &>/dev/null; then
+        useradd --system --home /var/lib/nebula --shell /usr/sbin/nologin "$SERVICE_USER"
+    fi
+
+    # generate / refresh config with simconf
+    if [[ -z "${SIMCONF_STATUS:-}" ]]; then
+        mkdir -p "$CONF_DIR"
+        exec -a "$0" simconf execute-templates \
+            $(if [[ -f /tmp/nebula.reconfigure ]]; then echo "--reconfigure"; fi) \
+            --exec-deb-script \
+            "$TEMPLATE_DIR" \
+            "$CONF_DIR" \
+            -- "$@"
+    fi
+    rm -f /tmp/nebula.reconfigure || true
+
+    # enable + start service
+    systemctl daemon-reload
+    systemctl enable --now "${SERVICE_NAME}.service" || true
+fi

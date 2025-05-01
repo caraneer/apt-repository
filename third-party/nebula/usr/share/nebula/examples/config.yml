@@ -1,0 +1,24 @@
+pki:
+  ca: /etc/nebula/ca.crt
+  cert: /etc/nebula/host.crt
+  key: /etc/nebula/host.key
+
+lighthouse:
+  am_lighthouse: false
+  interval: 60
+  hosts:
+    - "192.168.100.1"      # provide lighthouse Nebula IP
+
+listen:
+  host: 0.0.0.0
+  port: 4242
+firewall:
+  conntrack: true
+  outbound:
+    - port: any
+      proto: any
+      host: any
+  inbound:
+    - port: any
+      proto: any
+      host: any

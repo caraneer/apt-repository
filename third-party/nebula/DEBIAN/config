@@ -1,0 +1,5 @@
+#!/bin/bash
+# Called by dpkg when the package is (re)configured
+if [[ "$1" = "reconfigure" ]]; then
+    touch "/tmp/nebula.reconfigure"
+fi

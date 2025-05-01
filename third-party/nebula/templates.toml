@@ -1,0 +1,41 @@
+default_language = "en"
+
+[config."nebula/pki.ca"]
+type          = "string"
+description.en = "Path to the CA certificate"
+default       = "/etc/nebula/ca.crt"
+
+[config."nebula/pki.cert"]
+type          = "string"
+description.en = "Path to this host's certificate"
+default       = "/etc/nebula/host.crt"
+
+[config."nebula/pki.key"]
+type          = "string"
+description.en = "Path to this host's private key"
+default       = "/etc/nebula/host.key"
+
+[config."nebula/lighthouse.am_lighthouse"]
+type          = "boolean"
+description.en = "Is this node a lighthouse?"
+default       = false
+
+[config."nebula/lighthouse.interval"]
+type          = "string"
+description.en = "Seconds between lighthouse pings"
+default       = "60"
+
+[config."nebula/lighthouse.hosts"]
+type          = "string"
+description.en = "Comma-separated list of lighthouse Nebula IPs"
+default       = "192.168.100.1"
+
+[config."nebula/listen.host"]
+type          = "string"
+description.en = "Host/IP to bind"
+default       = "0.0.0.0"
+
+[config."nebula/listen.port"]
+type          = "string"
+description.en = "UDP port to bind"
+default       = "4242"
