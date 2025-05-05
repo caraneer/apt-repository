@@ -5,4 +5,4 @@ Priority: optional
 Architecture: amd64
 Maintainer: Aritz Beobide-Cardinal aritz@caraneer.ca
 Description: Monero full node daemon and CLI tools
-Depends: simconf (>=0.3.1), simconf (<0.5.0)
+Depends: simconf (>=0.3.7), simconf (<<0.5.0)
