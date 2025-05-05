@@ -10,6 +10,7 @@ echo "[nebula] discovering latest release via gh"
 release_json=$(gh release view --repo slackhq/nebula --json tagName,assets)
 tag=$(jq -r '.tagName' <<<"$release_json")
 version="${tag#v}-1"
+version="${version}-1"
 asset_url=$(echo "$release_json" | jq -r '.assets[] | select(.name=="nebula-linux-amd64.tar.gz") | .url')
 
 [[ -z "$asset_url" ]] && { echo "Cannot find amd64 asset in latest release"; exit 1; }
@@ -56,5 +57,5 @@ install -m 0644 "$SOURCEDIR/usr/share/nebula/examples/config.yml" \
 # ─── build ──────────────────────────────────────────────────────────────────
 echo "[nebula] building .deb"
 mkdir -p "${POOL_DIR}/nebula"
-dpkg-deb --build "$PKGROOT" "${POOL_DIR}/nebula/nebula_${version}_amd64.deb"
+dpkg-deb --build --root-owner-group "$PKGROOT" "${POOL_DIR}/nebula/nebula_${version}_amd64.deb"
 echo "[nebula] package created → ${POOL_DIR}/nebula/nebula_${version}_amd64.deb"

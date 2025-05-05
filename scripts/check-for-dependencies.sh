@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 missng_stuff="";
 if [ -z "$(command -v dpkg-scanpackages)" ]; then
 	echo "Command dpkg-scanpackages not found" 1>&2;

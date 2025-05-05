@@ -42,5 +42,5 @@ cp config.inc.php.tera "$PKGROOT/usr/share/ojs/templates/config.inc.php.tera"
 
 echo "Building package..."
 mkdir -p "${POOL_DIR}/ojs"
-dpkg-deb --build "$PKGROOT" "${POOL_DIR}/ojs/ojs_${VERSION}_all.deb"
+dpkg-deb --build --root-owner-group "$PKGROOT" "${POOL_DIR}/ojs/ojs_${VERSION}_all.deb"
 echo "Done: ${POOL_DIR}/ojs/ojs_${VERSION}_all.deb"

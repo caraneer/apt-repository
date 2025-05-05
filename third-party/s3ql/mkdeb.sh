@@ -21,6 +21,7 @@ echo "Fetching latest non-pre-release S3QL release using gh CLI..."
 release_json=$(gh release view --repo s3ql/s3ql --json tagName,assets)
 tag=$(echo "$release_json" | jq -r '.tagName')
 version="${tag#s3ql-}"
+version="${version}-1"
 sed "s/VERSION_REPLACEME/$version/" "$SOURCEDIR/DEBIAN/control" > "$PKGROOT/DEBIAN/control"
 
 asset_url=$(echo "$release_json" |
@@ -49,5 +50,5 @@ done
 
 echo "Building package..."
 mkdir -p "${POOL_DIR}/s3ql"
-dpkg-deb --build "$PKGROOT" "${POOL_DIR}/s3ql/s3ql_${version}_all.deb"
+dpkg-deb --build --root-owner-group "$PKGROOT" "${POOL_DIR}/s3ql/s3ql_${version}_all.deb"
 echo "Done: ${POOL_DIR}/s3ql/s3ql_${version}_all.deb"

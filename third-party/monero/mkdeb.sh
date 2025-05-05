@@ -43,5 +43,5 @@ cp -R "$SOURCEDIR/usr/share" "$PKGROOT/usr/share"
 
 echo "Building package..."
 mkdir -p "${POOL_DIR}/monero"
-dpkg-deb --build "$PKGROOT" "${POOL_DIR}/monero/monero_${VERSION}_amd64.deb"
+dpkg-deb --build --root-owner-group "$PKGROOT" "${POOL_DIR}/monero/monero_${VERSION}_amd64.deb"
 echo "Done: ${POOL_DIR}/monero/monero_${VERSION}_amd64.deb"

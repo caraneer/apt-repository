@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # This scripts expects to ran in the working directory with the same name as the distro codename
 set -euo pipefail
 distro="$(basename $(pwd))";

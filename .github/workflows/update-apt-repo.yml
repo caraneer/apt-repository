@@ -1,0 +1,41 @@
+name: Build apt repo
+on:
+  workflow_dispatch:
+#  schedule:
+#    - cron: "0 13 * * 1-4"
+
+concurrency:
+  group: the-only-group
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Set up configs and keys"
+        run: |
+          install -m 600 -D /dev/null ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY_AUTOMATA }}" > ~/.ssh/id_rsa
+          echo "${{ secrets.PGP_KEY_AUTOMATA }}" | gpg --import
+          git config --global user.signingkey 7B87D86CEA8FC401
+          git config --global user.name "Caraneer Automata"
+          git config --global user.email "182278465+caraneer-automata@users.noreply.github.com"
+          git config --global commit.gpgsign true
+          git config --global tag.gpgsign true
+      - name: Build & install bootstrap debs
+        env:
+          S3QL_SCHEME: ${{ env.S3QL_SCHEME }}
+          S3QL_HOSTNAME: ${{ env.S3QL_HOSTNAME }}
+          S3QL_BUCKET: ${{ env.S3QL_BUCKET }}
+          S3QL_MOUNT_PATH: /mnt/caraneer-infra-shared
+          S3QL_ACCESS_KEY: ${{ env.S3QL_ACCESS_KEY }}
+          S3QL_SECRET_KEY: ${{ secrets.S3QL_SECRET_KEY }}
+        run: |
+          ./scripts/bootstrap.sh
+      - name: Populate apt repo
+        env:
+          WEBROOT_DIR: /mnt/caraneer-infra-shared/www/deb
+        run: |
+          ./scripts/start.sh
+
+        

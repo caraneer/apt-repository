@@ -1,3 +1,5 @@
+default_language = "en"
+
 [config."caraneer-config-acmetool/domain-amount-invalid"]
 type = "error_message"
 description.en = "Invalid amount\nThe amount of domains must be an integer greater than 0."

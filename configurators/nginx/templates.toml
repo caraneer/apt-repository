@@ -1,3 +1,5 @@
+default_language = "en"
+
 [config."caraneer-config-nginx/common_webroot"]
 # This is converted to string later on
 type = "string"
