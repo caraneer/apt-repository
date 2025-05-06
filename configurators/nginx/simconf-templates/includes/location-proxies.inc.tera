@@ -10,13 +10,17 @@
 	template="caraneer-config-nginx/domain._.proxies.template.upstream",
 	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.template.upstream"
 ) -%}
+{%- set _ = register_question(
+	template="caraneer-config-nginx/domain._.proxies.amount",
+	q="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.amount"
+) -%}
 {%- for location_entry in get_answer_array(
-    q_prefix="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies",
-    q_object_keys=[
+	q_prefix="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies",
+	q_object_keys=[
 		"location",
 		"upstream",
 	],
-    amount_invalid_message="caraneer-config-nginx/location-amount-invalid"
+	amount_invalid_message="caraneer-config-nginx/location-amount-invalid"
 ) %}
 	location {{ location_entry.location }} {
 		proxy_http_version 1.1;
@@ -27,12 +31,12 @@
 		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
 		proxy_set_header X-Forwarded-Proto $scheme;
 
-    	proxy_connect_timeout 5s;
-    	proxy_send_timeout 60s;
-    	proxy_read_timeout 60s;
+		proxy_connect_timeout 5s;
+		proxy_send_timeout 60s;
+		proxy_read_timeout 60s;
 
 		proxy_set_header X-Forwarded-For $remote_addr;
-        proxy_set_header Host $http_host;
-        proxy_pass "http://{{ "upstream=" ~ domain_entry.name ~ "=" ~ loop.index0 }}";
+		proxy_set_header Host $http_host;
+		proxy_pass "http://{{ "upstream=" ~ domain_entry.name ~ "=" ~ loop.index0 }}";
 	}
 {%- endfor -%}

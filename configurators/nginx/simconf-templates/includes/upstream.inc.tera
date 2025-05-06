@@ -1,16 +1,20 @@
 {%- for domain_entry in get_answer_array(
-    q_prefix="caraneer-config-acmetool/domain",
-    q_object_keys=[
+	q_prefix="caraneer-config-nginx/domain",
+	q_object_keys=[
 		"name",
 	],
-    amount_invalid_message="caraneer-config-nginx/domain-amount-invalid"
+	amount_invalid_message="caraneer-config-nginx/domain-amount-invalid"
 ) -%}
+	{%- set _ = register_question(
+		template="caraneer-config-nginx/domain._.proxies.amount",
+		q="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.amount"
+	) -%}
 	{%- for location_entry in get_answer_array(
-    	q_prefix="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies",
-    	q_object_keys=[
+		q_prefix="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies",
+		q_object_keys=[
 			"upstream",
 		],
-    	amount_invalid_message="caraneer-config-nginx/domain-amount-invalid"
+		amount_invalid_message="caraneer-config-nginx/domain-amount-invalid"
 	) %}
 upstream {{ "upstream=" ~ domain_entry.name ~ "=" ~ loop.index0 }} {
 	{{ location_entry.upstream }}

@@ -11,7 +11,7 @@
 	{%- else %}
 "acmetool-quickstart-webroot-path": {{ acmetool_webroot ~ "/.well-known/acme-challenge" | toml_encode_value }}
 	{%- endif -%}
-{%- endif -%}
+{%- endif %}
 "acmetool-quickstart-choose-method": {{ acmetool_method | toml_encode_value }}
 "acmetool-quickstart-complete": true
 # The systemd timers included with the acmetool package already deal with this

@@ -8,20 +8,24 @@
 ) -%}
 {%- set _ = template_alias(
 	template="caraneer-config-nginx/domain._.webroots.template.folder",
-	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.upstream"
+	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.folder"
 ) -%}
 {%- set _ = template_alias(
 	template="caraneer-config-nginx/domain._.webroots.template.autoindex",
 	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.autoindex"
 ) -%}
+{%- set _ = register_question(
+	template="caraneer-config-nginx/domain._.webroots.amount",
+	q="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.amount"
+) -%}
 {%- for location_entry in get_answer_array(
-    q_prefix="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots",
-    q_object_keys=[
+	q_prefix="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots",
+	q_object_keys=[
 		"location",
 		"folder",
 		"autoindex",
 	],
-    amount_invalid_message="caraneer-config-nginx/location-amount-invalid"
+	amount_invalid_message="caraneer-config-nginx/location-amount-invalid"
 ) %}
 	location {{ location_entry.location }} {
 		try_files $uri $uri/ =404;
