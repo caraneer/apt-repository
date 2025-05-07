@@ -16,11 +16,10 @@ mkdir -p ~/.ssh
 
 echo "Writing SSH key to ~/.ssh/id_rsa…"
 echo "${SSH_KEY}" > ~/.ssh/id_rsa
+echo "${SSH_KNOWN_HOST}" > ~/.ssh/known_hosts
 echo "Setting permissions on private key…"
 chmod 600 ~/.ssh/id_rsa
-
-# echo "Scanning SSH host key…"
-# ssh-keyscan -H "${SSH_HOST}" >> ~/.ssh/known_hosts
+chmod 600 ~/.ssh/known_hosts
 
 echo "Ensuring mount point exists at ${SSH_MOUNT_PATH}…"
 mkdir -p "${SSH_MOUNT_PATH}"
@@ -29,13 +28,7 @@ echo "SSH_USER:   '${SSH_USER:-<unset>}'"
 echo "SSH_HOST:   '${SSH_HOST:-<unset>}'"
 
 echo "Mounting remote directory via sshfs…"
-# sshfs -o IdentityFile=~/.ssh/id_rsa,StrictHostKeyChecking=no \
-#       "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_PATH}" \
-#       "${SSH_MOUNT_PATH}"
-
-ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
-    "${SSH_USER}@${SSH_HOST}" \
-    "echo \"hello world\""
+sshfs "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_PATH}" "${SSH_MOUNT_PATH}"
 
 echo "Discovering local .deb files in ${SCRIPT_DIR}/../bootstrap_pkgs…"
 readarray -t LOCAL_DEBS < <(find "${SCRIPT_DIR}/../bootstrap_pkgs" \
