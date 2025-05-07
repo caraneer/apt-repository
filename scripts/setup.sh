@@ -81,7 +81,10 @@ configure_repo() {
 	  handle_error "1" "Unsupported architecture: $arch. Only amd64, and arm64 are supported."
 	fi
 
-	echo "deb [arch=$arch signed-by=/usr/share/keyrings/deb-caraneer.gpg] https://deb.caraneer.ca/ gnu-generic main" | tee /etc/apt/sources.list.d/deb-caraneer.list > /dev/null
+	# TODO: Ask if they want everything
+	echo "deb [signed-by=/usr/share/keyrings/deb-caraneer.gpg] https://deb.caraneer.ca/ gnu-generic configurators" > /etc/apt/sources.list.d/deb-caraneer.list
+	echo "deb [signed-by=/usr/share/keyrings/deb-caraneer.gpg] https://deb.caraneer.ca/ gnu-generic third-party" >> /etc/apt/sources.list.d/deb-caraneer.list
+	# echo "deb [signed-by=/usr/share/keyrings/deb-caraneer.gpg] https://deb.caraneer.ca/ gnu-generic main" >> /etc/apt/sources.list.d/deb-caraneer.list
 
 	# Uncomment if needed, but we aren't likely to override system packages
 	# echo "Package: *" | tee /etc/apt/preferences.d/deb-caraneer > /dev/null
