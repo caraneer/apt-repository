@@ -42,4 +42,4 @@ jobs:
           ./scripts/bootstrap.sh
       - name: Export public signing key
         run: |
-          gpg --export -a --default > /tmp/caraneer-infra-shared/www/deb/caraneer_signing.key
+          gpg --output /tmp/caraneer-infra-shared/www/deb/caraneer_signing.key --armor --export "182278465+caraneer-automata@users.noreply.github.com"
