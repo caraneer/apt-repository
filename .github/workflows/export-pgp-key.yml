@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-
       - name: Import signing key and configure GPG
         run: |
           mkdir -p ~/.gnupg
@@ -43,3 +42,6 @@ jobs:
       - name: Export public signing key
         run: |
           gpg --armor --export "182278465+caraneer-automata@users.noreply.github.com" > /tmp/caraneer-infra-shared/www/deb/caraneer_signing.key
+      - name: copy setup script
+        run: |
+          cp ./scripts/setup.sh /tmp/caraneer-infra-shared/www/deb/setup.sh
