@@ -1,24 +1,23 @@
 name: Build apt repo
 on:
   workflow_dispatch:
-#  schedule:
-#    - cron: "0 13 * * 1-4"
 
 concurrency:
   group: the-only-group
   cancel-in-progress: false
+
 jobs:
   publish:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+
       - name: Import signing key and configure GPG
         run: |
           mkdir -p ~/.gnupg
           chmod 700 ~/.gnupg
 
           echo "${{ secrets.PGP_KEY_AUTOMATA }}" | gpg --batch --import
-
           echo 'pinentry-mode loopback'  >> ~/.gnupg/gpg.conf
           echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent
@@ -31,20 +30,19 @@ jobs:
           git config --global user.email "182278465+caraneer-automata@users.noreply.github.com"
           git config --global commit.gpgsign true
           git config --global tag.gpgsign true
-      - name: Build & install bootstrap debs
+
+      - name: Build & install bootstrap debs (mount via SSHFS)
         env:
-          S3QL_SCHEME: ${{ env.S3QL_SCHEME }}
-          S3QL_HOSTNAME: ${{ env.S3QL_HOSTNAME }}
-          S3QL_BUCKET: ${{ env.S3QL_BUCKET }}
-          S3QL_MOUNT_PATH: /mnt/caraneer-infra-shared
-          S3QL_ACCESS_KEY: ${{ env.S3QL_ACCESS_KEY }}
-          S3QL_SECRET_KEY: ${{ secrets.S3QL_SECRET_KEY }}
+          SSH_HOST: ${{ env.SSH_HOST }}
+          SSH_USER: ${{ env.SSH_USER }}
+          SSH_REMOTE_PATH: ${{ env.SSH_REMOTE_PATH }}
+          SSH_MOUNT_PATH: /mnt/caraneer-infra-shared
+          SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           ./scripts/bootstrap.sh
+
       - name: Populate apt repo
         env:
           WEBROOT_DIR: /mnt/caraneer-infra-shared/www/deb
         run: |
           ./scripts/start.sh
-
-        

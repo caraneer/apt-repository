@@ -1,19 +1,22 @@
 #!/bin/bash
 set -euo pipefail
-export SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P);
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+
 sudo apt update
+sudo apt install -y --no-install-recommends sshfs
 
-cat <<'EOF' | envsubst | sudo debconf-set-selections --verbose
-s3ql s3ql/mounts.amount string 1
-s3ql s3ql/mounts.0.scheme select ${S3QL_SCHEME}
-s3ql s3ql/mounts.0.hostname string ${S3QL_HOSTNAME}
-s3ql s3ql/mounts.0.bucket string ${S3QL_BUCKET}
-s3ql s3ql/mounts.0.access_key string ${S3QL_ACCESS_KEY}
-s3ql s3ql/mounts.0.secret_key password ${S3QL_SECRET_KEY}
-s3ql s3ql/mounts.0.mount_path string ${S3QL_MOUNT_PATH}
-EOF
+mkdir -p ~/.ssh
+echo "${SSHFS_PRIVATE_KEY}" > ~/.ssh/id_rsa
+chmod 600 ~/.ssh/id_rsa
 
-readarray -t LOCAL_DEBS < <(find "${SCRIPT_DIR}/../bootstrap_pkgs" -maxdepth 1 -type f -name '*.deb' | sort)
+ssh-keyscan -H "${SSHFS_HOST}" >> ~/.ssh/known_hosts
 
+mkdir -p "${SSHFS_MOUNT_PATH}"
+sshfs -o IdentityFile=~/.ssh/id_rsa,StrictHostKeyChecking=no \
+      "${SSHFS_USER}@${SSHFS_HOST}:${SSHFS_REMOTE_PATH}" \
+      "${SSHFS_MOUNT_PATH}"
+
+readarray -t LOCAL_DEBS < <(find "${SCRIPT_DIR}/../bootstrap_pkgs" \
+                           -maxdepth 1 -type f -name '*.deb' | sort)
 sudo apt install -y --no-install-recommends "${LOCAL_DEBS[@]}"
-sudo systemctl start s3ql-mounts.service
