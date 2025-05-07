@@ -25,6 +25,9 @@ chmod 600 ~/.ssh/id_rsa
 echo "Ensuring mount point exists at ${SSH_MOUNT_PATH}…"
 mkdir -p "${SSH_MOUNT_PATH}"
 
+echo "SSH_USER:   '${SSH_USER:-<unset>}'"
+echo "SSH_HOST:   '${SSH_HOST:-<unset>}'"
+
 echo "Mounting remote directory via sshfs…"
 # sshfs -o IdentityFile=~/.ssh/id_rsa,StrictHostKeyChecking=no \
 #       "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_PATH}" \
