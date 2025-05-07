@@ -19,14 +19,14 @@ jobs:
 
           echo "${{ secrets.PGP_KEY_AUTOMATA }}" | gpg --batch --import
 
-          echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
+          echo 'pinentry-mode loopback'  >> ~/.gnupg/gpg.conf
           echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
           gpgconf --kill gpg-agent
 
-          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '$1=="sec"{print $5;exit}')
-          echo "${KEYID}:6:" | gpg --batch --import-ownertrust
+          FPR=$(gpg --list-secret-keys --with-colons | awk -F: '$1=="fpr"{print $10;exit}')
+          echo "${FPR}:6:" | gpg --batch --import-ownertrust
 
-          git config --global user.signingkey "$KEYID"
+          git config --global user.signingkey "$FPR"
           git config --global user.name "Caraneer Automata"
           git config --global user.email "182278465+caraneer-automata@users.noreply.github.com"
           git config --global commit.gpgsign true
