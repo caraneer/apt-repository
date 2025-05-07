@@ -35,8 +35,13 @@ if [ "$1" = "configure" ]; then
 		popd
 	fi
 	rm -f "/tmp/caraneer-config-s3ql.reconfigure" || true;
-	if deb-systemd-helper deb-systemd-helper-enabled s3ql-mounts.service; then
-        deb-systemd-invoke start s3ql-mounts.service || true
-    fi
 	systemctl daemon-reload || true
+	if deb-systemd-helper deb-systemd-helper-enabled s3ql-mounts.service; then
+		deb-systemd-invoke restart s3ql-mounts.service || true
+	fi
+	if [ -n "$2" ]; then
+		# There was no "old version", therefore this is a new install, so we should make sure s3ql is started.
+		deb-systemd-invoke enable s3ql-mounts.service || true
+		deb-systemd-invoke start s3ql-mounts.service || true
+	fi
 fi;

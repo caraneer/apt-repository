@@ -20,4 +20,9 @@ if [ "$1" = "configure" ]; then
 	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
         deb-systemd-invoke reload nginx.service || true
     fi
+	if [ -n "$2" ]; then
+		# There was no "old version", therefore this is a new install, so we should make sure nginx is started.
+		deb-systemd-invoke enable nginx.service || true
+		deb-systemd-invoke start nginx.service || true
+	fi
 fi;
