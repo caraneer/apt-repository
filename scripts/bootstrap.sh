@@ -4,7 +4,7 @@ set -euo pipefail
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 
 sudo apt update
-sudo apt install -y --no-install-recommends SSH
+sudo apt install -y --no-install-recommends sshfs
 
 mkdir -p ~/.ssh
 echo "${SSH_KEY}" > ~/.ssh/id_rsa
