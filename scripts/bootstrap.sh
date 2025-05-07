@@ -26,9 +26,13 @@ echo "Ensuring mount point exists at ${SSH_MOUNT_PATH}…"
 mkdir -p "${SSH_MOUNT_PATH}"
 
 echo "Mounting remote directory via sshfs…"
-sshfs -o IdentityFile=~/.ssh/id_rsa,StrictHostKeyChecking=no \
-      "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_PATH}" \
-      "${SSH_MOUNT_PATH}"
+# sshfs -o IdentityFile=~/.ssh/id_rsa,StrictHostKeyChecking=no \
+#       "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_PATH}" \
+#       "${SSH_MOUNT_PATH}"
+
+ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
+    "${SSH_USER}@${SSH_HOST}" \
+    "echo \"hello world\""
 
 echo "Discovering local .deb files in ${SCRIPT_DIR}/../bootstrap_pkgs…"
 readarray -t LOCAL_DEBS < <(find "${SCRIPT_DIR}/../bootstrap_pkgs" \
