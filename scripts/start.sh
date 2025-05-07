@@ -40,8 +40,19 @@ for release_channel in "${WEBROOT_DIR}/pool/${PKG_DISTRO}"/*; do
 	done;
 done;
 
-echo "Step 3: generate release files";
-cd "${WEBROOT_DIR}/dists/${PKG_DISTRO}";
-${SCRIPT_DIR}/generate-release.sh > Release;
-cat Release | gpg --default-key "Caraneer Automata" -abs > Release.gpg
-cat Release | gpg --default-key "Caraneer Automata" -abs --clearsign > InRelease
+echo "Step 3: generate release files"
+cd "${WEBROOT_DIR}/dists/${PKG_DISTRO}"
+
+"${SCRIPT_DIR}/generate-release.sh" > Release
+
+SIGNING_KEY="$(gpg --list-secret-keys --with-colons | awk -F: '$1=="sec"{print $5;exit}')"
+
+# Detached sig
+gpg --batch --yes --pinentry-mode loopback \
+    --default-key "${SIGNING_KEY}" \
+    --armor --output Release.gpg --detach-sign Release
+
+# Inline sig
+gpg --batch --yes --pinentry-mode loopback \
+    --default-key "${SIGNING_KEY}" \
+    --clearsign --output InRelease Release

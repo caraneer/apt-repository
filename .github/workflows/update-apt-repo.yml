@@ -12,12 +12,21 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: "Set up configs and keys"
+      - name: Import signing key and configure GPG
         run: |
-          install -m 600 -D /dev/null ~/.ssh/id_rsa
-          echo "${{ secrets.SSH_PRIVATE_KEY_AUTOMATA }}" > ~/.ssh/id_rsa
-          echo "${{ secrets.PGP_KEY_AUTOMATA }}" | gpg --import
-          git config --global user.signingkey 7B87D86CEA8FC401
+          mkdir -p ~/.gnupg
+          chmod 700 ~/.gnupg
+
+          echo "${{ secrets.PGP_KEY_AUTOMATA }}" | gpg --batch --import
+
+          echo 'pinentry-mode loopback' >> ~/.gnupg/gpg.conf
+          echo 'allow-loopback-pinentry' >> ~/.gnupg/gpg-agent.conf
+          gpgconf --kill gpg-agent
+
+          KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '$1=="sec"{print $5;exit}')
+          printf 'trust\n5\ny\nsave\n' | gpg --command-fd 0 --edit-key "$KEYID"
+
+          git config --global user.signingkey "$KEYID"
           git config --global user.name "Caraneer Automata"
           git config --global user.email "182278465+caraneer-automata@users.noreply.github.com"
           git config --global commit.gpgsign true
