@@ -36,13 +36,13 @@ jobs:
           SSH_HOST: ${{ env.SSH_HOST }}
           SSH_USER: ${{ env.SSH_USER }}
           SSH_REMOTE_PATH: ${{ env.SSH_REMOTE_PATH }}
-          SSH_MOUNT_PATH: /mnt/caraneer-infra-shared
+          SSH_MOUNT_PATH: /tmp/caraneer-infra-shared
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           ./scripts/bootstrap.sh
 
       - name: Populate apt repo
         env:
-          WEBROOT_DIR: /mnt/caraneer-infra-shared/www/deb
+          WEBROOT_DIR: /tmp/caraneer-infra-shared/www/deb
         run: |
           ./scripts/start.sh
