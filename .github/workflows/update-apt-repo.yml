@@ -33,10 +33,10 @@ jobs:
 
       - name: Build & install bootstrap debs (mount via SSHFS)
         env:
-          SSH_HOST: ${{ env.SSH_HOST }}
+          SSH_HOST: ${{ vars.SSH_HOST }}
           SSH_KNOWN_HOST: ${{ vars.SSH_KNOWN_HOST }}
-          SSH_USER: ${{ env.SSH_USER }}
-          SSH_REMOTE_PATH: ${{ env.SSH_REMOTE_PATH }}
+          SSH_USER: ${{ vars.SSH_USER }}
+          SSH_REMOTE_PATH: ${{ vars.SSH_REMOTE_PATH }}
           SSH_MOUNT_PATH: /tmp/caraneer-infra-shared
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
