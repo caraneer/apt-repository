@@ -19,8 +19,8 @@ echo "${SSH_KEY}" > ~/.ssh/id_rsa
 echo "Setting permissions on private key…"
 chmod 600 ~/.ssh/id_rsa
 
-echo "Scanning SSH host key…"
-ssh-keyscan -H "${SSH_HOST}" >> ~/.ssh/known_hosts
+# echo "Scanning SSH host key…"
+# ssh-keyscan -H "${SSH_HOST}" >> ~/.ssh/known_hosts
 
 echo "Ensuring mount point exists at ${SSH_MOUNT_PATH}…"
 mkdir -p "${SSH_MOUNT_PATH}"
