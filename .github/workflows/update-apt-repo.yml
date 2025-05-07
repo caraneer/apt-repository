@@ -24,7 +24,7 @@ jobs:
           gpgconf --kill gpg-agent
 
           KEYID=$(gpg --list-secret-keys --with-colons | awk -F: '$1=="sec"{print $5;exit}')
-          printf 'trust\n5\ny\nsave\n' | gpg --command-fd 0 --edit-key "$KEYID"
+          echo "${KEYID}:6:" | gpg --batch --import-ownertrust
 
           git config --global user.signingkey "$KEYID"
           git config --global user.name "Caraneer Automata"
