@@ -37,6 +37,6 @@
 
 		proxy_set_header X-Forwarded-For $remote_addr;
 		proxy_set_header Host $http_host;
-		proxy_pass "http://{{ "upstream=" ~ domain_entry.name ~ "=" ~ loop.index0 }}";
+		proxy_pass "http://{{ "upstream=" ~ domain_entry.name ~ "=" ~ loop.index0 }}/";
 	}
 {%- endfor -%}
