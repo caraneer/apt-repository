@@ -35,7 +35,7 @@ for release_channel in "${WEBROOT_DIR}/pool/${PKG_DISTRO}"/*; do
 		mkdir -p "${dists_dir}";
 		mkdir -p "${WEBROOT_DIR}/pool/${PKG_DISTRO}/${release_channel}"; # Needed so we build an empty index
 		cd "${WEBROOT_DIR}";
-		dpkg-scanpackages --multiversion --arch "${arch}" "${WEBROOT_DIR}/pool/${PKG_DISTRO}/${release_channel}" > "${dists_dir}/Packages";
+		dpkg-scanpackages --multiversion --arch "${arch}" "pool/${PKG_DISTRO}/${release_channel}" > "${dists_dir}/Packages";
 		cat "${dists_dir}/Packages" | gzip -9 > "${dists_dir}/Packages.gz";
 	done;
 done;
