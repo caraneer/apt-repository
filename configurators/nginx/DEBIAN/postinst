@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-if [ "$1" = "configure" ]; then
+if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
 	if [ -z "${SIMCONF_STATUS:-}" ]; then
 		mkdir -p /etc/caraneer-config-nginx;
 		exec -a "$0" simconf execute-templates \
@@ -18,11 +18,11 @@ if [ "$1" = "configure" ]; then
 		openssl dhparam -out "$DHPARAM_PATH" 4096
 	fi;
 	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
-        deb-systemd-invoke reload nginx.service || true
-    fi
-	if [ -n "$2" ]; then
+		deb-systemd-invoke reload nginx.service || true
+	fi
+fi;
+if [ "$1" = "configure" ] && [ -n "$2" ]; then
 		# There was no "old version", therefore this is a new install, so we should make sure nginx is started.
 		deb-systemd-invoke enable nginx.service || true
 		deb-systemd-invoke start nginx.service || true
-	fi
 fi;

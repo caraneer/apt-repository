@@ -30,6 +30,6 @@ if [ "$1" = "configure" ]; then
         deb-systemd-invoke start nginx.service || true
     fi
 	acmetool quickstart --batch --response-file="$RESPONSE_FILE"
-	
 	rm -f "/tmp/caraneer-config-acmetool.reconfigure" || true;
+	dpkg-trigger --no-await caraneer-configured-acmetool
 fi;
