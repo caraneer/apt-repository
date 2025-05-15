@@ -39,3 +39,15 @@ default       = "0.0.0.0"
 type          = "string"
 description.en = "UDP port to bind"
 default       = "4242"
+
+[config."nebula/ca-crt"]
+type          = "string"
+description.en = "Urlencoded CA certificate"
+
+[config."nebula/host-crt"]
+type          = "string"
+description.en = "Urlencoded host certificate"
+
+[config."nebula/host-key"]
+type          = "string"
+description.en = "Urlencoded host key"
