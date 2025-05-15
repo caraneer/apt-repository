@@ -44,6 +44,7 @@ jobs:
 
       - name: Populate apt repo
         env:
+          GH_TOKEN: ${{ github.token }}
           WEBROOT_DIR: /tmp/caraneer-infra-shared/www/deb
         run: |
           ./scripts/start.sh
