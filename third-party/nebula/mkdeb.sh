@@ -9,8 +9,12 @@ ARCHIVE="$WORKDIR/nebula.tar.gz"
 echo "[nebula] discovering latest release via gh"
 release_json=$(gh release view --repo slackhq/nebula --json tagName,assets)
 tag=$(jq -r '.tagName' <<<"$release_json")
-version="${tag#v}-1"
-version="${version}-1"
+version="${tag#v}"
+if [[ "${version}" = "1.9.5" ]]; then
+    version="${version}-2"
+else
+    version="${version}-1"
+fi;
 asset_url=$(echo "$release_json" | jq -r '.assets[] | select(.name=="nebula-linux-amd64.tar.gz") | .url')
 
 [[ -z "$asset_url" ]] && { echo "Cannot find amd64 asset in latest release"; exit 1; }
@@ -27,7 +31,7 @@ mkdir -p "$PKGROOT/DEBIAN" \
          "$PKGROOT/usr/bin" \
          "$PKGROOT/usr/share/nebula/examples" \
          "$PKGROOT/usr/share/nebula/templates" \
-         "$PKGROOT/lib/systemd/system"
+         "$PKGROOT/usr/lib/systemd/system"
 
 # ─── binaries ───────────────────────────────────────────────────────────────
 install -m 0755 "$WORKDIR/nebula-extract/nebula"      "$PKGROOT/usr/bin/"
@@ -42,6 +46,12 @@ simconf toml-to-template "$SOURCEDIR/templates.toml" \
                           "$PKGROOT/DEBIAN/templates"
 install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/config.yml.tera" \
                 "$PKGROOT/usr/share/nebula/templates/"
+install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/ca.crt.tera" \
+                "$PKGROOT/usr/share/nebula/templates/"
+install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/host.crt.tera" \
+                "$PKGROOT/usr/share/nebula/templates/"
+install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/host.key.tera" \
+                "$PKGROOT/usr/share/nebula/templates/"
 
 # ─── maintainer scripts ─────────────────────────────────────────────────────
 install -m 0755 "$SOURCEDIR/DEBIAN/postinst" "$PKGROOT/DEBIAN/postinst"
@@ -49,8 +59,8 @@ install -m 0755 "$SOURCEDIR/DEBIAN/postrm"   "$PKGROOT/DEBIAN/postrm"
 install -m 0755 "$SOURCEDIR/DEBIAN/config"   "$PKGROOT/DEBIAN/config"
 
 # ─── service + sample config ────────────────────────────────────────────────
-install -m 0644 "$SOURCEDIR/lib/systemd/system/nebula.service" \
-                "$PKGROOT/lib/systemd/system/"
+install -m 0644 "$SOURCEDIR/usr/lib/systemd/system/nebula.service" \
+                "$PKGROOT/usr/lib/systemd/system/"
 install -m 0644 "$SOURCEDIR/usr/share/nebula/examples/config.yml" \
                 "$PKGROOT/usr/share/nebula/examples/"
 
