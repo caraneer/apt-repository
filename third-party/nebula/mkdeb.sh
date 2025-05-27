@@ -11,7 +11,7 @@ release_json=$(gh release view --repo slackhq/nebula --json tagName,assets)
 tag=$(jq -r '.tagName' <<<"$release_json")
 version="${tag#v}"
 if [[ "${version}" = "1.9.5" ]]; then
-    version="${version}-6"
+    version="${version}-7"
 else
     version="${version}-1"
 fi;
