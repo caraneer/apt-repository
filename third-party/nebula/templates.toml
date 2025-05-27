@@ -25,10 +25,15 @@ type          = "string"
 description.en = "Seconds between lighthouse pings"
 default       = "60"
 
-[config."nebula/lighthouse.hosts"]
+[config."nebula/lighthouse.public_host"]
 type          = "string"
-description.en = "Comma-separated list of lighthouse Nebula IPs"
-default       = "192.168.100.1"
+description.en = "IP and port where the lighthouse is publically reachable"
+default       = "1.1.1.1:4242"
+
+[config."nebula/lighthouse.lan_ip"]
+type          = "string"
+description.en = "IP of the lighthouse on Nebula LAN"
+default       = "192.168.68.1"
 
 [config."nebula/listen.host"]
 type          = "string"

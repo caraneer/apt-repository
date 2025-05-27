@@ -3,13 +3,23 @@ pki:
   cert: {{ get_answer(q="nebula/pki.cert@high") | toml_encode_value }}
   key:  {{ get_answer(q="nebula/pki.key@high")  | toml_encode_value }}
 
+{%- set lighthouse_lan_ip = get_answer(q="nebula/lighthouse.lan_ip@high") | trim %}
+{%- set lighthouse_public_host = get_answer(q="nebula/lighthouse.public_host@high") | trim %}
+
+{% if lighthouse_lan_ip %}
+static_host_map:
+  {{ lighthouse_lan_ip | toml_encode_value }}: [{{ lighthouse_public_host | toml_encode_value }}]
+{% endif %}
+
 lighthouse:
   am_lighthouse: {{ get_answer(q="nebula/lighthouse.am_lighthouse@high") | toml_encode_value }}
   interval: {{ get_answer(q="nebula/lighthouse.interval@high") }}
+{% if lighthouse_lan_ip %}
   hosts:
-{% for host in get_answer(q="nebula/lighthouse.hosts@high") | split(pat=",") %}
-    - "{{ host | trim }}"
-{% endfor %}
+    - {{ lighthouse_lan_ip | toml_encode_value }}
+{% else %}
+  hosts: ""
+{% endif %}
 
 listen:
   host: {{ get_answer(q="nebula/listen.host@high") }}
