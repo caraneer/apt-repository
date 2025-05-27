@@ -8,7 +8,7 @@ pki:
 
 {%- set am_lighthouse = get_answer(q="nebula/lighthouse.am_lighthouse@high") %}
 
-{% if am_lighthouse %}
+{% if not am_lighthouse %}
 static_host_map:
   {{ lighthouse_lan_ip | toml_encode_value }}: [{{ lighthouse_public_host | toml_encode_value }}]
 {% endif %}
