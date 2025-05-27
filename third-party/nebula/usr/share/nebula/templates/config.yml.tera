@@ -6,7 +6,7 @@ pki:
 {%- set lighthouse_lan_ip = get_answer(q="nebula/lighthouse.lan_ip@high") | trim %}
 {%- set lighthouse_public_host = get_answer(q="nebula/lighthouse.public_host@high") | trim %}
 
-{% if lighthouse_lan_ip %}
+{% if am_lighthouse %}
 static_host_map:
   {{ lighthouse_lan_ip | toml_encode_value }}: [{{ lighthouse_public_host | toml_encode_value }}]
 {% endif %}
@@ -17,14 +17,14 @@ lighthouse:
   am_lighthouse: {{ am_lighthouse | toml_encode_value }}
   interval: {{ get_answer(q="nebula/lighthouse.interval@high") }}
 {% if am_lighthouse %}
-  hosts:
-    - {{ lighthouse_lan_ip | toml_encode_value }}
-{% else %}
   hosts: ""
   serve_dns: true
   dns:
     host: {{ lighthouse_lan_ip | toml_encode_value }}
     port: 53
+{% else %}
+  hosts:
+    - {{ lighthouse_lan_ip | toml_encode_value }}
 {% endif %}
 
 listen:
