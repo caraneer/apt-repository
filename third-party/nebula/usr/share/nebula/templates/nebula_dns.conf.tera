@@ -1,0 +1,3 @@
+{% if not get_answer(q="nebula/lighthouse.am_lighthouse@high") %}[Resolve]
+Domains=get_answer(q="nebula/dns-suffix@high")
+DNS=get_answer(q="nebula/lighthouse.lan_ip@high"){% endif %}

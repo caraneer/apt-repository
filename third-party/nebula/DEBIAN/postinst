@@ -23,6 +23,12 @@ if [[ "$1" = "configure" ]]; then
             -- "$@"
     fi
     rm -f /tmp/nebula.reconfigure || true
+    if grep -qF "[Resolve]" "${CONF_DIR}/nebula_dns.conf"; then
+        mkdir -p /etc/systemd/resolved.conf.d
+        ln -s "${CONF_DIR}/nebula_dns.conf" /etc/systemd/resolved.conf.d/nebula_dns.conf
+    else
+        rm -f /etc/systemd/resolved.conf.d/nebula_dns.conf;
+    fi;
 
     # enable + start service
     systemctl daemon-reload

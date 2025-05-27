@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 if [[ "$1" = "purge" ]]; then
+  	if [ -z "${SIMCONF_STATUS:-}" ]; then
+    	exec -a "$0" simconf purge \
+    	  --exec-deb-script \
+    	  -- "$@";
+  	fi;
 	systemctl disable --now nebula.service || true
+	rm -f /etc/systemd/resolved.conf.d/nebula_dns.conf;
+	rm -rf /etc/nebula;
 	userdel -r nebula 2>/dev/null || true
 fi
