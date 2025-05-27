@@ -11,17 +11,19 @@ static_host_map:
   {{ lighthouse_lan_ip | toml_encode_value }}: [{{ lighthouse_public_host | toml_encode_value }}]
 {% endif %}
 
+{%- set am_lighthouse = get_answer(q="nebula/lighthouse.am_lighthouse@high") %}
+
 lighthouse:
-  am_lighthouse: {{ get_answer(q="nebula/lighthouse.am_lighthouse@high") | toml_encode_value }}
+  am_lighthouse: {{ am_lighthouse | toml_encode_value }}
   interval: {{ get_answer(q="nebula/lighthouse.interval@high") }}
-{% if lighthouse_lan_ip %}
+{% if am_lighthouse %}
   hosts:
     - {{ lighthouse_lan_ip | toml_encode_value }}
 {% else %}
   hosts: ""
   serve_dns: true
   dns:
-    host: "192.168.68.1"
+    host: {{ lighthouse_lan_ip | toml_encode_value }}
     port: 53
 {% endif %}
 
