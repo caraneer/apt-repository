@@ -22,7 +22,7 @@ if [[ "$1" = "configure" ]]; then
             -- "$@"
     fi
     rm -f /tmp/nebula.reconfigure || true
-    chmod +x "$CONF_DIR/nebula_dns.sh"
+    chmod +x "$CONF_DIR/nebula-dns.sh"
 
     # enable + start service
     systemctl daemon-reload
