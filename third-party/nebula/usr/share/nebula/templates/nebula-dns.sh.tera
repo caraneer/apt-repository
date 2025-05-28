@@ -1,0 +1,6 @@
+#!/bin/sh
+{% if not get_answer(q="nebula/lighthouse.am_lighthouse@high") %}
+# TODO: This only works with one VPN
+resolvectl dns tun0 {{ get_answer(q="nebula/lighthouse.lan_ip@high") | toml_encode_value }}
+resolvectl domain tun0 {{ "~" ~ get_answer(q="nebula/lighthouse.lan_ip@high") | toml_encode_value }}
+{% endif %}

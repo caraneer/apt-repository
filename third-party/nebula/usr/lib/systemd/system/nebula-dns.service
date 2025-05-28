@@ -1,0 +1,11 @@
+[Unit]
+Description=Set DNS for Nebula tun0
+After=nebula.service
+Wants=nebula.service
+
+[Service]
+Type=oneshot
+ExecStart=/etc/nebula/nebula-dns.sh
+
+[Install]
+WantedBy=multi-user.target

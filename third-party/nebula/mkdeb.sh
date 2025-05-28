@@ -11,7 +11,7 @@ release_json=$(gh release view --repo slackhq/nebula --json tagName,assets)
 tag=$(jq -r '.tagName' <<<"$release_json")
 version="${tag#v}"
 if [[ "${version}" = "1.9.5" ]]; then
-    version="${version}-10"
+    version="${version}-11"
 else
     version="${version}-1"
 fi;
@@ -52,7 +52,7 @@ install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/host.crt.tera" \
                 "$PKGROOT/usr/share/nebula/templates/"
 install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/host.key.tera" \
                 "$PKGROOT/usr/share/nebula/templates/"
-install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/nebula_dns.conf.tera" \
+install -m 0644 "$SOURCEDIR/usr/share/nebula/templates/nebula-dns.sh.tera" \
                 "$PKGROOT/usr/share/nebula/templates/"
 
 # ─── maintainer scripts ─────────────────────────────────────────────────────

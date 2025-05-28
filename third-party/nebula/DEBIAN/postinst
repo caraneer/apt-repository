@@ -1,7 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-SERVICE_NAME="nebula"
 SERVICE_USER="nebula"
 CONF_DIR="/etc/nebula"
 TEMPLATE_DIR="/usr/share/nebula/templates"
@@ -23,14 +22,12 @@ if [[ "$1" = "configure" ]]; then
             -- "$@"
     fi
     rm -f /tmp/nebula.reconfigure || true
-    if grep -qF "[Resolve]" "${CONF_DIR}/nebula_dns.conf"; then
-        mkdir -p /etc/systemd/resolved.conf.d
-        ln -fs "${CONF_DIR}/nebula_dns.conf" /etc/systemd/resolved.conf.d/nebula_dns.conf
-    else
-        rm -f /etc/systemd/resolved.conf.d/nebula_dns.conf;
-    fi;
+    chmod +x "$CONF_DIR/nebula_dns.sh"
 
     # enable + start service
     systemctl daemon-reload
-    systemctl enable --now "${SERVICE_NAME}.service" || true
+    systemctl enable --now "nebula.service" || true
+    systemctl enable --now "nebula-dns.service" || true
+    systemctl start --now "nebula.service" || true
+    systemctl start --now "nebula-dns.service" || true
 fi
