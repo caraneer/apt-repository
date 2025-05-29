@@ -23,6 +23,8 @@ if [[ "$1" = "configure" ]]; then
     fi
     rm -f /tmp/nebula.reconfigure || true
     chmod +x "$CONF_DIR/nebula-dns.sh"
+    chown -R "${SERVICE_USER}:${SERVICE_USER}" "${CONF_DIR}" || true;
+    chmod 600 "$CONF_DIR/host.key.tera" || true;
 
     # enable + start service
     systemctl daemon-reload
