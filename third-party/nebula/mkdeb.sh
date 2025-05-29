@@ -11,7 +11,7 @@ release_json=$(gh release view --repo slackhq/nebula --json tagName,assets)
 tag=$(jq -r '.tagName' <<<"$release_json")
 version="${tag#v}"
 if [[ "${version}" = "1.9.5" ]]; then
-    version="${version}-12"
+    version="${version}-13"
 else
     version="${version}-1"
 fi;
@@ -62,6 +62,8 @@ install -m 0755 "$SOURCEDIR/DEBIAN/config"   "$PKGROOT/DEBIAN/config"
 
 # ─── service + sample config ────────────────────────────────────────────────
 install -m 0644 "$SOURCEDIR/usr/lib/systemd/system/nebula.service" \
+                "$PKGROOT/usr/lib/systemd/system/"
+install -m 0644 "$SOURCEDIR/usr/lib/systemd/system/nebula-dns.service" \
                 "$PKGROOT/usr/lib/systemd/system/"
 install -m 0644 "$SOURCEDIR/usr/share/nebula/examples/config.yml" \
                 "$PKGROOT/usr/share/nebula/examples/"
