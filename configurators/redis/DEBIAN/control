@@ -1,0 +1,8 @@
+Package: caraneer-config-redis
+Version: VERSION_REPLACEME
+Section: database
+Priority: optional
+Architecture: all
+Depends: simconf (>=0.3.7), simconf (<<0.5.0), redis, redis-tools
+Maintainer: Drake Luce <drakeluce@gmail.com>
+Description: Config package for configuring Redis using simconf

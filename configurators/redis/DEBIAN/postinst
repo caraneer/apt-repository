@@ -1,0 +1,87 @@
+#!/bin/bash
+set -e
+
+REDIS_CONFIG_PATH="/etc/redis/redis.conf"
+GENERATED_CONF_DIR="/etc/caraneer-config-redis"
+GENERATED_REDIS_CONFIG_FILE="$GENERATED_CONF_DIR/redis.conf"
+GENERATED_SYSCTL_FILE="$GENERATED_CONF_DIR/99-caraneer-redis-overcommit.conf"
+FINAL_SYSCTL_FILE="/etc/sysctl.d/99-caraneer-redis-overcommit.conf"
+MANAGE_THP_SCRIPT="$GENERATED_CONF_DIR/manage_thp.sh"
+THP_SERVICE_SRC_DIR="/usr/share/caraneer-config-redis/systemd"
+
+
+if [ "$1" = "configure" ]; then
+    # stop redis before applying new config to avoid issues
+    if systemctl is-active --quiet redis-server; then
+        systemctl stop redis-server || true
+    fi
+
+    # create the directory for generated files
+    mkdir -p "$GENERATED_CONF_DIR"
+
+    # run simconf to generate config files and scripts
+    if [ -z "${SIMCONF_STATUS:-}" ]; then
+        exec -a "$0" simconf execute-templates \
+            $(if [ -f "/tmp/caraneer-config-redis.reconfigure" ]; then echo "--reconfigure"; fi) \
+            --exec-deb-script \
+            "/usr/share/caraneer-config-redis/templates" \
+            "$GENERATED_CONF_DIR" \
+            -- "$@";
+    fi;
+    rm -f "/tmp/caraneer-config-redis.reconfigure" || true
+
+    # deploy Redis config
+    if [ -f "$GENERATED_REDIS_CONFIG_FILE" ]; then
+        mkdir -p "$(dirname "$REDIS_CONFIG_PATH")"
+        mv "$GENERATED_REDIS_CONFIG_FILE" "$REDIS_CONFIG_PATH"
+        chown "redis:redis" "$REDIS_CONFIG_PATH"
+        chmod 0640 "$REDIS_CONFIG_PATH"
+        echo "Deployed Redis config to $REDIS_CONFIG_PATH"
+    else
+        echo "Warning: Generated Redis config file not found at $GENERATED_REDIS_CONFIG_FILE. Redis might use default config."
+    fi
+
+    # sysctl overcommit memory setting
+    if [ -f "$GENERATED_SYSCTL_FILE" ]; then
+        if grep -q "vm.overcommit_memory = 1" "$GENERATED_SYSCTL_FILE"; then
+            mkdir -p "$(dirname "$FINAL_SYSCTL_FILE")"
+            mv "$GENERATED_SYSCTL_FILE" "$FINAL_SYSCTL_FILE"
+            echo "Deployed sysctl config to $FINAL_SYSCTL_FILE"
+            echo "Applying sysctl vm.overcommit_memory=1..."
+            sysctl -p "$FINAL_SYSCTL_FILE" || sysctl vm.overcommit_memory=1
+        else
+            echo "Overcommit memory setting not enabled in generated sysctl config, removing any previous file."
+            rm -f "$FINAL_SYSCTL_FILE"
+            rm -f "$GENERATED_SYSCTL_FILE"
+        fi
+    else
+        if [ -e "$GENERATED_SYSCTL_FILE" ]; then
+             echo "Overcommit memory setting disabled. Removing any previous $FINAL_SYSCTL_FILE."
+             rm -f "$FINAL_SYSCTL_FILE"
+             rm -f "$GENERATED_SYSCTL_FILE"
+        else
+            echo "Warning: Generated sysctl config file not found at $GENERATED_SYSCTL_FILE. Removing any previous $FINAL_SYSCTL_FILE."
+            rm -f "$FINAL_SYSCTL_FILE"
+        fi
+    fi
+
+    # manage Transparent Huge Pages (THP)
+    if [ -f "$MANAGE_THP_SCRIPT" ]; then
+        chmod +x "$MANAGE_THP_SCRIPT"
+        echo "Executing THP management script: $MANAGE_THP_SCRIPT"
+        "$MANAGE_THP_SCRIPT" "$THP_SERVICE_SRC_DIR"
+    else
+        echo "Warning: THP management script not found at $MANAGE_THP_SCRIPT"
+    fi
+
+    # restart Redis
+    echo "Reloading systemd and restarting Redis service..."
+    systemctl daemon-reload
+    if deb-systemd-helper deb-systemd-helper-enabled redis-server.service; then
+        deb-systemd-invoke restart redis-server.service || true
+    else
+        echo "Warning: redis-server.service is not enabled. Attempting to enable and start."
+        deb-systemd-invoke enable redis-server.service || true
+        deb-systemd-invoke start redis-server.service || true
+    fi
+fi;

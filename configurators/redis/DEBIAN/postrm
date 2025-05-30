@@ -1,0 +1,49 @@
+#!/bin/bash
+set -e
+
+REDIS_CONFIG_PATH="/etc/redis/redis.conf"
+FINAL_SYSCTL_FILE="/etc/sysctl.d/99-caraneer-redis-overcommit.conf"
+THP_SYSTEMD_SERVICE_FILE="/usr/lib/systemd/system/disable-thp.service"
+THP_SERVICE_NAME="disable-thp.service"
+GENERATED_CONF_DIR="/etc/caraneer-config-redis"
+
+if [ "$1" = "purge" ]; then
+    echo "Starting purge of caraneer-config-redis configs..." >&2
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		exec -a "$0" simconf purge \
+			--exec-deb-script \
+			-- "$@";
+	fi;
+
+    # remove main redis config file
+    if [ -f "$REDIS_CONFIG_PATH" ]; then
+        rm -f "$REDIS_CONFIG_PATH"
+        echo "Removed Redis config $REDIS_CONFIG_PATH" >&2
+    fi
+
+    # remove sysctl config file
+    if [ -f "$FINAL_SYSCTL_FILE" ]; then
+        rm -f "$FINAL_SYSCTL_FILE"
+        echo "Removed sysctl file $FINAL_SYSCTL_FILE" >&2
+    fi
+
+    # disable and remove THP management service
+    if [ -f "$THP_SYSTEMD_SERVICE_FILE" ]; then
+        echo "Disabling and removing THP management service..." >&2
+        systemctl stop "$THP_SERVICE_NAME" || true
+        systemctl disable "$THP_SERVICE_NAME" || true
+        rm -f "$THP_SYSTEMD_SERVICE_FILE"
+        echo "Removed $THP_SYSTEMD_SERVICE_FILE" >&2
+    fi
+
+    # remove dir where simconf generated files
+    if [ -d "$GENERATED_CONF_DIR" ]; then
+        rm -rf "$GENERATED_CONF_DIR"
+        echo "Removed generated config directory $GENERATED_CONF_DIR" >&2
+    fi
+
+    echo "Reloading systemd daemon..." >&2
+    systemctl daemon-reload
+
+    echo "caraneer-config-redis purge completed." >&2
+fi;
