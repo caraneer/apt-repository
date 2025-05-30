@@ -1,0 +1,14 @@
+[Unit]
+Description=Disable Transparent Huge Pages for Redis
+DefaultDependencies=no
+After=sysinit.target local-fs.target
+Before=redis-server.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "if [ -f /sys/kernel/mm/transparent_hugepage/enabled ]; then echo never > /sys/kernel/mm/transparent_hugepage/enabled; fi"
+ExecStart=/bin/sh -c "if [ -f /sys/kernel/mm/transparent_hugepage/defrag ]; then echo never > /sys/kernel/mm/transparent_hugepage/defrag; fi"
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

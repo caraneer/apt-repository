@@ -1,0 +1,118 @@
+default_language = "en"
+
+[config."redis/bind"]
+type = "string"
+description.en = "IP addresses Redis binds to (space-separated).\nUse '127.0.0.1 -::1' for loopback only.\nUse '0.0.0.0' for all IPv4, '::' for all IPv6.\nUse a specific IP to bind to that interface."
+default = "127.0.0.1 -::1
+[config."redis/port"]
+type = "string"
+description.en = "TCP port Redis listens on."
+default = "6379"
+
+[config."redis/unix_socket_path"]
+type = "string"
+description.en = "Path for the Unix domain socket. Leave blank to disable.\nExample: /var/run/redis/redis-server.sock"
+default = "/var/run/redis/redis-server.sock" # Default for Debian package
+
+[config."redis/unix_socket_perm"]
+type = "string"
+description.en = "Permissions (octal) for the Unix domain socket file."
+default = "755" # Often redis user/group can access
+
+[config."redis/protected_mode"]
+type = "boolean"
+description.en = "Enable protected mode?\nProtected mode only allows loopback connections if no 'bind' directive is set and no password is configured. Recommended 'true' unless you have specific needs."
+default = true
+
+[config."redis/enable_overcommit_memory"]
+type = "boolean"
+description.en = "Set 'vm.overcommit_memory = 1' via sysctl?\nThis is highly recommended for Redis to prevent fork() issues during background saves."
+default = true
+
+[config."redis/disable_thp"]
+type = "boolean"
+description.en = "Disable Transparent Huge Pages (THP) at boot via a systemd service?\nDisabling THP can reduce latency for Redis. If unsure, leave as false."
+default = false
+
+[config."redis/loglevel"]
+type = { "single_choice" = [
+    { value = "debug", description.en = "Debug" },
+    { value = "verbose", description.en = "Verbose" },
+    { value = "notice", description.en = "Notice" },
+    { value = "warning", description.en = "Warning" }
+] }
+description.en = "Log level for Redis."
+default = "notice"
+
+[config."redis/logfile"]
+type = "string"
+description.en = "Path to the Redis log file.\nSet to \"\" for standard output (not recommended when daemonized by systemd, as logs go to journald)."
+default = "/var/log/redis/redis-server.log"
+
+[config."redis/databases"]
+type = "string"
+description.en = "Number of databases available."
+default = "16"
+
+[config."redis/maxclients"]
+type = "string"
+description.en = "Maximum number of connected clients at the same time."
+default = "10000"
+
+[config."redis/maxmemory"]
+type = "string"
+description.en = "Maximum memory Redis can use (e.g., '1gb', '512mb').\nLeave blank for Redis to use as much memory as available (not recommended for production without monitoring)."
+default = ""
+
+[config."redis/maxmemory_policy"]
+type = { "single_choice" = [
+    { value = "noeviction", description.en = "No eviction: return errors on writes when memory limit reached." },
+    { value = "allkeys-lru", description.en = "AllKeys LRU: evict least recently used keys." },
+    { value = "allkeys-lfu", description.en = "AllKeys LFU: evict least frequently used keys." },
+    { value = "volatile-lru", description.en = "Volatile LRU: evict LRU keys from those with an expiry set." },
+    { value = "volatile-lfu", description.en = "Volatile LFU: evict LFU keys from those with an expiry set." },
+    { value = "allkeys-random", description.en = "AllKeys Random: evict random keys." },
+    { value = "volatile-random", description.en = "Volatile Random: evict random keys from those with an expiry set." },
+    { value = "volatile-ttl", description.en = "Volatile TTL: evict keys with shortest TTL among expirable keys." }
+] }
+description.en = "Memory eviction policy when maxmemory is reached."
+default = "noeviction"
+
+[config."redis/appendonly"]
+type = "boolean"
+description.en = "Enable Append Only File (AOF) persistence?"
+default = false
+
+[config."redis/appendfilename"]
+type = "string"
+description.en = "Filename for the Append Only File."
+default = "appendonly.aof"
+
+[config."redis/acl_user.amount"]
+type = "string"
+description.en = "Number of ACL users to configure."
+default = "0"
+
+[config."redis/acl_user.template.name"]
+type = "string"
+description.en = "Username for ACL user #${index}."
+default = "user${index}"
+
+[config."redis/acl_user.template.flags"]
+type = "string"
+description.en = "Flags for user ${name} (e.g., 'on', 'off', 'nopass', 'allkeys', 'allcommands'). Usually 'on'."
+default = "on"
+
+[config."redis/acl_user.template.permissions"]
+type = "string"
+description.en = "Permissions for user ${name} (e.g., '~*' (all keys), '+@all' (all commands), '-@dangerous', '+GET ~myprefix:*')."
+default = "~* +@all"
+
+[config."redis/acl_user.template.password"]
+type = "password"
+description.en = "Password for user ${name}.\nPrefix with '>' for cleartext (default if no prefix), '#' for SHA256 hex hash.\nExample cleartext: mypassword\nExample SHA256: #5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8"
+default = ""
+
+[config."redis/acl_user_amount_invalid_msg"]
+type = "error_message"
+description.en = "Invalid amount for ACL users. Must be an integer (0 or more)."
