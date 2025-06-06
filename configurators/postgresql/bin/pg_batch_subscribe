@@ -1,0 +1,67 @@
+#!/bin/bash
+set -euo pipefail
+
+INPUT_FILE="$1"
+
+while read -r LINE || [ -n "$LINE" ]; do
+  [[ -z "$LINE" || "$LINE" =~ ^# ]] && continue
+
+  read -r UPSTREAM_URI LOCAL_DB PUBLICATION <<< "$LINE"
+  SUB_NAME="${PUBLICATION}_sub"
+
+  echo "📦 Processing subscription '$SUB_NAME' from publication '$PUBLICATION'"
+
+  # Skip early if already subscribed
+  if psql "$LOCAL_DB" -tAc "SELECT 1 FROM pg_subscription WHERE subname = '$SUB_NAME';" | grep -q 1; then
+    echo "  🔁 Subscription already exists, skipping."
+    continue
+  fi
+
+  echo "📡 Inspecting upstream publication..."
+
+  PUB_ALL=$(psql "$UPSTREAM_URI" -Atc "SELECT puballtables FROM pg_publication WHERE pubname = '$PUBLICATION';")
+
+  # Use a temporary file for schema dump
+  TMP_SCHEMA=$(mktemp)
+  
+
+  if [[ "$PUB_ALL" == "t" ]]; then
+    echo "  📣 Publication includes ALL tables."
+    echo "  ⤵️  Dumping full schema..."
+    pg_dump --schema-only "$UPSTREAM_URI" > "$TMP_SCHEMA"
+  else
+    echo "  📣 Publication contains specific tables. Discovering..."
+    TABLES=$(psql "$UPSTREAM_URI" -Atc "
+      SELECT quote_ident(n.nspname) || '.' || quote_ident(c.relname)
+      FROM pg_publication p
+      JOIN pg_publication_rel pr ON pr.prpubid = p.oid
+      JOIN pg_class c ON c.oid = pr.prrelid
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE p.pubname = '$PUBLICATION';
+    ")
+
+    if [[ -z "$TABLES" ]]; then
+      echo "  ❌ No tables found in publication '$PUBLICATION'"
+      rm "$TMP_SCHEMA"
+      continue
+    fi
+
+    echo "  ⤵️  Dumping schema for published tables..."
+    pg_dump --schema-only \
+      $(for T in $TABLES; do echo --table="$T"; done) \
+      "$UPSTREAM_URI" > "$TMP_SCHEMA"
+  fi
+
+  echo "  📥 Applying schema to $LOCAL_DB..."
+  psql "$LOCAL_DB" < "$TMP_SCHEMA"
+  echo todo rm "$TMP_SCHEMA"
+
+  echo "  ➕ Creating subscription..."
+  psql "$LOCAL_DB" -c \
+    "CREATE SUBSCRIPTION \"$SUB_NAME\" CONNECTION '$UPSTREAM_URI' PUBLICATION \"$PUBLICATION\";"
+
+  echo "✅ Done with publication $PUBLICATION → $SUB_NAME"
+  echo
+done < "$INPUT_FILE"
+
+echo "✅ All publications processed."

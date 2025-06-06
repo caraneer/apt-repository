@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+	systemctl disable "postgresql@${postgresql_version}-caraneer.service" || true;
+	systemctl stop "postgresql@${postgresql_version}-caraneer.service" || true;
+fi;
+if [ "$1" = "purge" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		exec -a "$0" simconf purge \
+			--exec-deb-script \
+			-- "$@";
+	fi;
+	postgresql_version="$(find /etc/postgresql -mindepth 1 -maxdepth 1 -exec basename {} \; | sort -nr | head -n 1)";
+	rm -rf "/etc/caraneer-config-postgresql"
+	rm -rf "/etc/postgresql/${postgresql_version}/caraneer";
+	# TODO: If simconf gets the ability to ask questions in "purge" mode, make this removal optional
+	rm -rf "/var/lib/postgresql/${postgresql_version}/caraneer";
+fi;

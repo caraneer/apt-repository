@@ -1,0 +1,99 @@
+#!/bin/bash
+set -e
+
+# If we're deploying on a server, but no users are allowed to authenticate over the internet, then we should have a
+# means to only listen on network interfaces which don't have a /32 IPv4. This doesn't properly handle the edgecase
+# where our intranet is IPv6-only, but by the time I'm a situation where I need more than 65k unique hosts in a private
+# intranet, this will be someone else's problem!
+
+# Note: ChatGPT made this function, not 100% sure how it does what it does, but I do know that it can only be called
+# once, which is fine for our usecase.
+get_lan_filtered_ips() {
+	declare -A if_has_lan_v4;
+	declare -A if_addrs;
+
+	while read -r _ ifname fam addr _; do
+		ip=${addr%%/*};
+		cidr=${addr##*/};
+		if [[ "$fam" == "inet" ]]; then
+			if [[ "$cidr" -ne 32 ]]; then
+				if_has_lan_v4["$ifname"]=1
+			fi
+		fi
+		if_addrs["$ifname"]+="$ip,"
+	done < <(ip -o addr show | awk '{print $1, $2, $3, $4, $5}')
+
+	local output=()
+	for ifname in "${!if_addrs[@]}"; do
+		if [[ "${if_has_lan_v4[$ifname]}" == "1" ]]; then
+			ips="${if_addrs[$ifname]}"
+			ips="${ips%,}"  # Trim trailing comma
+			IFS=',' read -ra arr <<< "$ips"
+			for ip in "${arr[@]}"; do
+				output+=("$ip")
+			done
+		fi
+	done
+	IFS=','; echo "${output[*]}"
+}
+
+
+# Debian/Ubuntu have a directory for each major version of postgresql. Pretty convenient.
+postgresql_version="$(find /etc/postgresql -mindepth 1 -maxdepth 1 -exec basename {} \; | sort -nr | head -n 1)";
+if [ -z "$postgresql_version" ]; then
+	echo "Unable to determine what version of postgresql is currently installed" >&2;
+	exit 1;
+fi;
+if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		# We're 
+		non_wan_ips=$(ip -o -f inet addr show | awk '$4 !~ "/32" {sub(/\/.*/, "", $4); ips[NR]=$4} END {for (i=1; i<=length(ips); i++) printf "%s%s", ips[i], (i<length(ips) ? "," : "\n")}');
+		mkdir -p /etc/caraneer-config-postgresql;
+		exec -a "$0" simconf execute-templates \
+			$(if [ -f "/tmp/caraneer-config-postgresql.reconfigure" ]; then echo "--reconfigure"; fi) \
+			--exec-deb-script \
+			"/usr/share/caraneer-config-postgresql/templates" \
+			"/etc/caraneer-config-postgresql" \
+			"--extra" "{\
+				\"postgresql_version\": ${postgresql_version},\
+				\"samenet_ips\": \"$(get_lan_filtered_ips)\",\
+				\"system_memory_kb\": $(grep -oP '^MemTotal:\s+\K\d+' /proc/meminfo)\
+			}" \
+			-- "$@";
+	fi;
+	DHPARAM_PATH="/etc/caraneer-config-postgresql/dh-parameters.4096";
+	if
+		grep -q "$DHPARAM_PATH" /etc/caraneer-config-postgresql/postgresql/postgresql.conf &&
+		! [ -f "$DHPARAM_PATH" ];
+	then
+		openssl dhparam -out "$DHPARAM_PATH" 4096
+	fi;
+	ln -sf "/etc/caraneer-config-postgresql/postgresql" "/etc/postgresql/${postgresql_version}/caraneer";
+	chown -R postgres:postgres "/etc/caraneer-config-postgresql/postgresql";
+	chown postgres:postgres "/etc/caraneer-config-postgresql/replications";
+	chown postgres:postgres "/etc/caraneer-config-postgresql/roles";
+	chmod 640 "/etc/caraneer-config-postgresql/replications";
+	chmod 640 "/etc/caraneer-config-postgresql/roles";
+	chmod 640 "/etc/postgresql/${postgresql_version}/caraneer/pg_hba.conf";
+	chmod 640 "/etc/postgresql/${postgresql_version}/caraneer/pg_ident.conf";
+	DB_DIR="/var/lib/postgresql/${postgresql_version}/caraneer";
+	if ! [ -d "${DB_DIR}" ]; then
+		mkdir -p "${DB_DIR}";
+		chown postgres:postgres "${DB_DIR}";
+		sudo -u postgres "/usr/lib/postgresql/${postgresql_version}/bin/initdb" "${DB_DIR}"
+	fi;
+fi;
+if [ "$1" = "configure" ] && [ -z "$2" ]; then
+	# There was no "old version", therefore this is a new install, so we should make sure postgresql is started.
+	systemctl disable "postgresql@${postgresql_version}-main.service" || true;
+	systemctl stop "postgresql@${postgresql_version}-main.service" || true;
+	systemctl enable "postgresql@${postgresql_version}-caraneer.service" || true;
+	systemctl start "postgresql@${postgresql_version}-caraneer.service" || true;
+fi;
+if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
+	if systemctl is-active --quiet "postgresql@${postgresql_version}-caraneer.service"; then
+		sudo -u postgres pg_batch_roles /etc/caraneer-config-postgresql/roles || true;
+		sudo -u postgres pg_batch_subscribe /etc/caraneer-config-postgresql/replications || true;
+		systemctl restart "postgresql@${postgresql_version}-caraneer.service" || true;
+	fi;
+fi;
