@@ -1,0 +1,76 @@
+default_language = "en"
+
+[config."caraneer-config-postgresql/amount-invalid"]
+type = "error_message"
+description.en = "Invalid amount\nThe amount must be an integer greater than or equal 0"
+
+[config."caraneer-config-postgresql/roles.amount"]
+type = "string"
+description.en = "Amount of additional roles for the postgresql database"
+default = 0
+
+[config."caraneer-config-postgresql/roles.template.name"]
+type = "string"
+description.en = "Role #${index} name"
+default = ""
+
+[config."caraneer-config-postgresql/roles.template.auth"]
+type = { "multi_choice" = [
+	{ value = "localhost", description.en = "Password (scram-sha-256) from localhost" },
+	{ value = "lan", description.en = "Password (scram-sha-256) from LAN" },
+	{ value = "wan", description.en = "TLS-encrypted password (scram-sha-256) from anywhere on the internet" },
+	{ value = "unix", description.en = "Unix socket connection (name matching client process uid)" },
+] }
+description.en = "Authentication methods for role #${index} - may be empty if this is intended to be a group"
+default = ["unix"]
+
+[config."caraneer-config-postgresql/roles.template.password"]
+type = "password"
+description.en = "Password for roles #${index} - may be blank if no password authentication methods were chosen"
+default = ""
+
+[config."caraneer-config-postgresql/roles.template.databases"]
+type = "string"
+description.en = "Comma-seperated list of accessible databases for role #${index}"
+default = "all,replication"
+
+[config."caraneer-config-postgresql/roles.template.roles"]
+type = "string"
+description.en = "Comma-seperated roles role #${index} is a member of"
+default = ""
+
+[config."caraneer-config-postgresql/roles.template.options"]
+type = { "multi_choice" = [
+	{ value = "SUPERUSER", description.en = "Super-user" },
+	{ value = "CREATEDB", description.en = "Create databases" },
+	{ value = "CREATEROLE", description.en = "Create roles" },
+	{ value = "REPLICATION", description.en = "Replication" },
+] }
+description.en = "Attributes for role #${index}"
+default = []
+
+[config."caraneer-config-postgresql/ssl_path"]
+type = "string"
+description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exist in the specified folder.\nIf either files don't exist, https will not be enabled."
+default = ""
+
+
+[config."caraneer-config-postgresql/replication.amount"]
+type = "string"
+description.en = "Amount of downstream logical replications"
+default = 0
+
+[config."caraneer-config-postgresql/replication.template.database"]
+type = "string"
+description.en = "Local database name for logical replication #${index}"
+default = ""
+
+[config."caraneer-config-postgresql/replication.template.publication"]
+type = "string"
+description.en = "logical replication #${index} publication name"
+default = ""
+
+[config."caraneer-config-postgresql/replication.template.upstream"]
+type = "string"
+description.en = "postgresql URL for upstream source for publication #${index}"
+default = "postgresql://dbmaster:5433/mydb"

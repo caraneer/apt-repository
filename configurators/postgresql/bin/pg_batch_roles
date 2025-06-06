@@ -1,0 +1,83 @@
+#!/bin/bash
+set -euo pipefail
+
+INPUT_FILE="$1"
+
+while read -r LINE || [[ -n "$LINE" ]]; do
+  [[ -z "$LINE" || "$LINE" =~ ^# ]] && continue
+
+  read -r USERNAME ROLELIST ATTRIBUTES PASSWORD <<< "$LINE"
+
+  echo "👤 Processing user: $USERNAME"
+
+  # Normalize attribute flags
+  # Declare known toggled attributes
+  ATTR_SQL=""
+  declare -A KNOWN_ATTRS=(
+    [SUPERUSER]=NOSUPERUSER
+    [CREATEDB]=NOCREATEDB
+    [CREATEROLE]=NOCREATEROLE
+    [REPLICATION]=NOREPLICATION
+  )
+
+  IFS=',' read -ra ATTR_FLAGS <<< "${ATTRIBUTES:-}"
+  declare -A ENABLED_ATTRS=()
+  for FLAG in "${ATTR_FLAGS[@]}"; do
+    [[ -z "$FLAG" ]] && continue
+    if [[ -n "${KNOWN_ATTRS[$FLAG]+yes}" ]]; then
+      ENABLED_ATTRS[$FLAG]=1
+    else
+      echo "  ⚠️  Unknown attribute '$FLAG' ignored"
+    fi
+  done
+
+  for ATTR in "${!KNOWN_ATTRS[@]}"; do
+    if [[ -n "${ENABLED_ATTRS[$ATTR]+yes}" ]]; then
+      ATTR_SQL+=" $ATTR"
+    else
+      ATTR_SQL+=" ${KNOWN_ATTRS[$ATTR]}"
+    fi
+  done
+
+  # 1. Create or update user
+  if [[ -z "$PASSWORD" ]]; then
+    psql -d postgres -c "DO \$\$
+    BEGIN
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$USERNAME') THEN
+        CREATE ROLE $USERNAME LOGIN$ATTR_SQL;
+      ELSE
+        ALTER ROLE $USERNAME$ATTR_SQL;
+      END IF;
+    END
+    \$\$;"
+  else
+    psql -d postgres -c "DO \$\$
+    BEGIN
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$USERNAME') THEN
+        CREATE ROLE $USERNAME LOGIN PASSWORD '$PASSWORD'$ATTR_SQL;
+      ELSE
+        ALTER ROLE $USERNAME PASSWORD '$PASSWORD'$ATTR_SQL;
+      END IF;
+    END
+    \$\$;"
+  fi
+
+  # 2. Grant group roles
+  IFS=',' read -ra ROLES <<< "$ROLELIST"
+  for ROLE in "${ROLES[@]}"; do
+    [[ -z "$ROLE" ]] && continue
+    echo "   ↪ Ensuring group role '$ROLE' exists and assigning..."
+    psql -d postgres -c "DO \$\$
+    BEGIN
+      IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '$ROLE') THEN
+        CREATE ROLE $ROLE NOLOGIN;
+      END IF;
+    END
+    \$\$;"
+    psql -d postgres -c "GRANT $ROLE TO $USERNAME;"
+  done
+
+  echo "✅ Finished $USERNAME"
+done < "$INPUT_FILE"
+
+echo "✅ pg_batch_roles success"
