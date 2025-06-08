@@ -2,6 +2,7 @@
 Description=Mount all s3ql volumes from /etc/s3ql/mounts
 After=network-online.target
 Wants=network-online.target
+Before=remote-fs.target
 ConditionPathExists=/etc/s3ql/mounts
 
 [Service]
@@ -11,4 +12,4 @@ ExecStop=/usr/sbin/s3ql-umount-all
 RemainAfterExit=true
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=remote-fs.target
