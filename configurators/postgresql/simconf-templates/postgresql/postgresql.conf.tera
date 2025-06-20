@@ -144,10 +144,5 @@ cluster_name = '{{ extra.postgresql_version }}/caraneer'
 datestyle = 'iso, ymd'
 timezone = 'America/Toronto'
 
-lc_messages = 'en_CA.UTF-8'			# locale for system error message
-lc_monetary = 'en_CA.UTF-8'			# locale for monetary formatting
-lc_numeric = 'en_CA.UTF-8'			# locale for number formatting
-lc_time = 'en_CA.UTF-8'				# locale for time formatting
-
 # default configuration for text search
 default_text_search_config = 'pg_catalog.english'
