@@ -15,7 +15,20 @@ if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
 		grep -q "$DHPARAM_PATH" /etc/nginx/conf.d/90-caraneer-config.conf &&
 		! [ -f "$DHPARAM_PATH" ];
 	then
-		openssl dhparam -out "$DHPARAM_PATH" 4096
+		# openssl dhparam -out "$DHPARAM_PATH" 4096
+		echo "-----BEGIN DH PARAMETERS-----
+MIICCAKCAgEAj6Ur28Ks89oq9zmr33e57j1u5jET/ViheZzqwlX/ESTvpD+zxZT1
+ucnpUEXRuDWVogiH8TQ3OFhlEF5y3y1YEwf4ybJIE8vXqMk1cByMsRNC8chaqkT7
+k9InfvN5KL0ZPAtu/qrxNxLlp3QRqtncpZLn0mHLHHEmSAsK0vroN3CWIKu9/x0z
+yiA1PJmcOV6cuKF5vzscBP1HYX0uW4AifzV9LW5dK86TQHT86gD6EhdcmR8z5fw9
++SM16O8ENZDAHNC4hbSnk2Qs75E0B71qzr5q8hSE/Gy5hyAAWYO3eTPyYM9JrCZ8
+ww+mVmmCpj5qlMez2i4JUIkJI1d5L9wHCCTM0GsetrnUun+gonmoCr/HF3t02UI3
+zj118iK2/efnl1TiS1JJ3O33+sjjaonKkB8INo62u8BAx0JV9gUsNdubshasTGve
+5WREbFhD2vyj0R2mk51j9drL/q94UOGEF3K/9Sq08wva4lcr/DgrkyYjNW3Dfww1
+opFQFFUdxc7swlTXKTrf2n6tYh+WCOJjWqMle09YkemxRZYpFlkI+nvaBeT5ERvb
+UE9kiiHqhiSdw6VWyMHSG1opHUVbkirvvlqhEUxg/vqiFhS++uFAVR4gEMp/UMJ8
+yZ6zpRe9nuuZuPWFWPsdQwBh+gc6U//2StKYVR2aER91cDqwvbrHm58CAQI=
+-----END DH PARAMETERS-----" > "$DHPARAM_PATH";
 	fi;
 	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
 		deb-systemd-invoke reload nginx.service || true

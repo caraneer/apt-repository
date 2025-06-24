@@ -23,8 +23,13 @@ default = ""
 
 [config."caraneer-config-nginx/domain.template.ssl_path"]
 type = "string"
-description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exists in the specified folder.\nIf either files don't exist, https will not be enabled."
+description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exist in the specified folder.\nIf either files don't exist, https will not be enabled."
 default = ""
+
+[config."caraneer-config-nginx/domain.template.client_max_body_size"]
+type = "string"
+description.en = "max request-body length for domain #${index} - e.g. 10M = 10MiB"
+default = "1M"
 
 [config."caraneer-config-nginx/domain.template.404_page"]
 type = "string"

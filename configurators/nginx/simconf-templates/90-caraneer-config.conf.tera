@@ -60,6 +60,7 @@ server {
 	listen [::]:80;
 	{%- endif %}
 	server_name {{ domain_entry.name }};
+	client_max_body_size {{ domain_entry.client_max_body_size }};
 	{% if domain_entry.404_page %}error_page 404 {{ domain_entry.404_page }};{% endif %}
 	{% if domain_entry.410_page %}error_page 410 {{ domain_entry.410_page }};{% endif %}
 	{% if domain_entry.451_page %}error_page 451 {{ domain_entry.451_page }};{% endif %}
@@ -75,7 +76,6 @@ server {
 		~\.php/ 1;
 	}
 	location ~ ^(\/.+\.php)([\/?].*)?$ {
-		client_max_body_size 12M;
 		fastcgi_intercept_errors on;
 		root {{ domain_entry.webroot }};
 		fastcgi_pass unix:{{ domain_entry.php_socket }};
