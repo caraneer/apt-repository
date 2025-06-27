@@ -5,7 +5,7 @@ SOURCEDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P);
 WORKDIR="$(mktemp -d -t nginx-deb.XXXXXXXXXX)"
 echo "WORKDIR=$WORKDIR";
 PKGROOT="$WORKDIR/pkg"
-version="0.2.1-1"
+version="0.2.2-1"
 
 echo "Preparing package directory..."
 mkdir -p "$PKGROOT";

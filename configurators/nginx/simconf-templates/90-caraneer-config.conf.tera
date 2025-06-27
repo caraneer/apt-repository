@@ -19,7 +19,8 @@ proxy_headers_hash_bucket_size 128;
 		"504_page",
 		"webroot",
 		"php_socket",
-		"autoindex"
+		"autoindex",
+		"client_max_body_size"
 	],
 	amount_invalid_message="caraneer-config-nginx/domain-amount-invalid"
 ) -%}
