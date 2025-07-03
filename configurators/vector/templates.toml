@@ -1,0 +1,11 @@
+default_language = "en"
+
+[config."caraneer-config-vector/ingesting_host"]
+type = "string"
+description.en = "The ingesting host (e.g., BetterStack)."
+default = "someid.us-east-9.betterstackdata.com"
+
+[config."caraneer-config-vector/sink_token"]
+type = "password"
+description.en = "The bearer token for the BetterStack sinks."
+default = "sometoken"

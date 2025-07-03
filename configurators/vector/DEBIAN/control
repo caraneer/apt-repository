@@ -1,0 +1,8 @@
+Package: caraneer-config-vector
+Version: VERSION_REPLACEME
+Section: admin
+Priority: optional
+Architecture: all
+Depends: simconf (>=0.3.7), simconf (<<0.5.0), ca-certificates, vector
+Maintainer: Drake Luce <drakeluce@gmail.com>
+Description: Config package to set up vector for metrics shipping to BetterStack.

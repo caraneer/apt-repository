@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+	systemctl stop vector.service || true
+fi;
+if [ "$1" = "purge" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		exec -a "$0" simconf purge \
+			--exec-deb-script \
+			-- "$@";
+	fi;
+    rm -f /etc/vector/vector.yaml
+fi;

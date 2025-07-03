@@ -1,0 +1,23 @@
+#!/bin/bash
+set -e
+if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
+	if [ -z "${SIMCONF_STATUS:-}" ]; then
+		mkdir -p /etc/vector;
+		exec -a "$0" simconf execute-templates \
+			$(if [ -f "/tmp/caraneer-config-vector.reconfigure" ]; then echo "--reconfigure"; fi) \
+			--exec-deb-script \
+			"/usr/share/caraneer-config-vector/templates" \
+			"/etc/vector" \
+			-- "$@";
+	fi;
+    chown vector:vector /etc/vector/vector.yaml
+    chmod 640 /etc/vector/vector.yaml
+	if deb-systemd-helper deb-systemd-helper-enabled vector.service; then
+		deb-systemd-invoke restart vector.service || true
+	fi
+fi;
+if [ "$1" = "configure" ] && [ -z "$2" ]; then
+		# There was no "old version", therefore this is a new install, so we should make sure vector is started.
+		deb-systemd-invoke enable vector.service || true
+		deb-systemd-invoke start vector.service || true
+fi;
