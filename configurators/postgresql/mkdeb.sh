@@ -5,7 +5,7 @@ SOURCEDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P);
 WORKDIR="$(mktemp -d -t postgresql-deb.XXXXXXXXXX)"
 echo "WORKDIR=$WORKDIR";
 PKGROOT="$WORKDIR/pkg"
-version="0.1.2-1"
+version="0.1.3-1"
 
 echo "Preparing package directory..."
 mkdir -p "$PKGROOT";

@@ -87,6 +87,8 @@ if [ "$1" = "configure" ] && [ -z "$2" ]; then
 	# There was no "old version", therefore this is a new install, so we should make sure postgresql is started.
 	systemctl disable "postgresql@${postgresql_version}-main.service" || true;
 	systemctl stop "postgresql@${postgresql_version}-main.service" || true;
+	echo "disabled" > "/etc/postgresql/${postgresql_version}/main/start.conf" || true;
+	systemctl daemon-reload || true;
 	systemctl enable "postgresql@${postgresql_version}-caraneer.service" || true;
 	systemctl start "postgresql@${postgresql_version}-caraneer.service" || true;
 fi;
