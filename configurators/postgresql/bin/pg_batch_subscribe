@@ -3,6 +3,70 @@ set -euo pipefail
 
 INPUT_FILE="$1"
 
+get_owner() {
+  local uri=$1
+  local table=$2
+  psql "$uri" --csv --tuples-only -c "SELECT pg_get_userbyid(relowner) FROM pg_class WHERE relname = '$table' AND relkind = 'r';"
+}
+
+get_grants() {
+  local uri=$1
+  local table=$2
+  psql "$uri" --csv --tuples-only -c "SELECT 'GRANT ' || privilege_type || ' ON ' || table_name || ' TO ' || grantee || ';'
+               FROM information_schema.role_table_grants
+               WHERE table_name = '$table';"
+}
+
+generate_create_table() {
+  local uri=$1
+  local table=$2
+  psql "$uri" --tuples-only <<EOF
+WITH target_tables AS (
+  SELECT unnest(ARRAY['$table']) AS relname
+),
+table_columns AS (
+  SELECT c.relname,
+         a.attnum,
+         a.attname AS column_name,
+         pg_catalog.format_type(a.atttypid, a.atttypmod) AS data_type,
+         pg_get_expr(d.adbin, d.adrelid) AS column_default,
+         NOT a.attnotnull AS is_nullable
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN pg_attribute a ON a.attrelid = c.oid
+LEFT JOIN pg_attrdef d ON d.adrelid = c.oid AND d.adnum = a.attnum
+    JOIN target_tables t ON c.relname = t.relname
+   WHERE n.nspname = 'public'
+     AND a.attnum > 0 AND NOT a.attisdropped
+),
+primary_keys AS (
+  SELECT c.relname,
+         string_agg(a.attname, ', ') AS pk_columns
+    FROM pg_index i
+    JOIN pg_class c ON c.oid = i.indrelid
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    JOIN unnest(i.indkey) WITH ORDINALITY AS k(attnum, ord) ON TRUE
+    JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum = k.attnum
+    JOIN target_tables t ON c.relname = t.relname
+   WHERE i.indisprimary AND n.nspname = 'public'
+GROUP BY c.relname
+)
+SELECT 'CREATE TABLE IF NOT EXISTS ' || cols.relname || E'(' ||
+       string_agg(
+         '  ' || column_name || ' ' || data_type
+         || COALESCE(' DEFAULT ' || column_default, '')
+         || CASE WHEN is_nullable THEN '' ELSE ' NOT NULL' END,
+         E','
+       )
+       || COALESCE(E', CONSTRAINT ' || cols.relname || '_pkey PRIMARY KEY (' || pk.pk_columns || ')', '') ||
+       E');'
+FROM table_columns cols
+LEFT JOIN primary_keys pk ON cols.relname = pk.relname
+GROUP BY cols.relname, pk.pk_columns;
+EOF
+}
+
+
 while read -r LINE || [ -n "$LINE" ]; do
   [[ -z "$LINE" || "$LINE" =~ ^# ]] && continue
 
@@ -47,9 +111,14 @@ while read -r LINE || [ -n "$LINE" ]; do
     fi
 
     echo "  ⤵️  Dumping schema for published tables..."
-    pg_dump --schema-only \
-      $(for T in $TABLES; do echo --table="$T"; done) \
-      "$UPSTREAM_URI" > "$TMP_SCHEMA"
+    for T in $TABLES; do
+      echo table "$T";
+      generate_create_table "$UPSTREAM_URI" "$T"  >> "$TMP_SCHEMA";
+      OWNER=$(get_owner "$UPSTREAM_URI" "$T");
+      GRANTS=$(get_grants "$UPSTREAM_URI" "$T");
+      echo "ALTER TABLE $T OWNER TO $OWNER;" >> "$TMP_SCHEMA";
+      echo "$GRANTS" >> "$TMP_SCHEMA";
+    done
   fi
 
   echo "  📥 Applying schema to $LOCAL_DB..."
