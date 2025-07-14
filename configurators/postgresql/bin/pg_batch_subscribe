@@ -71,7 +71,7 @@ while read -r LINE || [ -n "$LINE" ]; do
   [[ -z "$LINE" || "$LINE" =~ ^# ]] && continue
 
   read -r UPSTREAM_URI LOCAL_DB PUBLICATION <<< "$LINE"
-  SUB_NAME="${PUBLICATION}_sub"
+  SUB_NAME="auto_subscribe_$(printf '%s' "$PUBLICATION-$(hostname)" | sha256sum | cut -c1-32)";
 
   echo "📦 Processing subscription '$SUB_NAME' from publication '$PUBLICATION'"
 
@@ -96,7 +96,7 @@ while read -r LINE || [ -n "$LINE" ]; do
   else
     echo "  📣 Publication contains specific tables. Discovering..."
     TABLES=$(psql "$UPSTREAM_URI" -Atc "
-      SELECT quote_ident(n.nspname) || '.' || quote_ident(c.relname)
+      SELECT quote_ident(c.relname)
       FROM pg_publication p
       JOIN pg_publication_rel pr ON pr.prpubid = p.oid
       JOIN pg_class c ON c.oid = pr.prrelid
