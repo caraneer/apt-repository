@@ -1,0 +1,41 @@
+#!/bin/bash
+set -euo pipefail
+
+SRC_BASE="/var/lib/acme/live"
+DST_BASE="/etc/nginx/acme-live"
+NGINX_USER="www-data"
+NGINX_GROUP="www-data"
+
+umask 077
+mkdir -p "$DST_BASE"
+
+changed=0
+for domdir in "$SRC_BASE"/*; do
+    [ -d "$domdir" ] || continue
+    domain=$(basename "$domdir")
+
+    [ -f "$domdir/privkey" ] || continue
+
+    dst_dir="$DST_BASE/$domain"
+    mkdir -p "$dst_dir"
+    chmod 0700 "$dst_dir"
+    chown "$NGINX_USER:$NGINX_GROUP" "$dst_dir"
+
+    for f in privkey fullchain cert chain account; do
+        src="$domdir/$f"
+        dst="$dst_dir/$f"
+        [ -f "$src" ] || continue
+
+        tmp="${dst}.new.$$"
+        cp --dereference --no-preserve=mode,ownership "$src" "$tmp"
+        chmod 0600 "$tmp"
+        chown "$NGINX_USER:$NGINX_GROUP" "$tmp"
+        mv -f "$tmp" "$dst"
+        changed=$((changed+1))
+    done
+done
+
+if [ $changed -gt 0 ]; then
+    systemctl is-active --quiet nginx && systemctl reload nginx || true
+fi
+exit 0
