@@ -107,6 +107,11 @@ type = "string"
 description.en = "${domain} proxy #${index} upstream definition\nThe specified string will be placed verbatim in the body of an upstream definition.\nSee https://nginx.org/en/docs/http/ngx_http_upstream_module.html for more details."
 default = "server 127.0.0.1:3000;"
 
+[config."caraneer-config-nginx/domain._.proxies.template.upstream_path"]
+type = "string"
+description.en = "${domain} proxy #${index} upstream path suffix."
+default = "/"
+
 [config."caraneer-config-nginx/location-amount-invalid"]
 type = "error_message"
 description.en = "Invalid amount\nThe amount of domains must be an integer greater than 0 or equal to 0"
