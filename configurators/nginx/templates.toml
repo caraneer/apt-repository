@@ -91,6 +91,11 @@ type = "boolean"
 description.en = "Display the contents of a folder if an index file does not exist\nThis will not apply if \"/\" is proxied"
 default = false
 
+[config."caraneer-config-nginx/domain._.webroots.template.use_alias"]
+type = "boolean"
+description.en = "Use 'alias' instead of 'root' for this location."
+default = false
+
 [config."caraneer-config-nginx/domain._.proxies.amount"]
 type = "string"
 description.en = "Amount of proxy \"location\" rules for ${domain}?"

@@ -14,6 +14,10 @@
 	template="caraneer-config-nginx/domain._.webroots.template.autoindex",
 	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.autoindex"
 ) -%}
+{%- set _ = template_alias(
+	template="caraneer-config-nginx/domain._.webroots.template.use_alias",
+	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.template.use_alias"
+) -%}
 {%- set _ = register_question(
 	template="caraneer-config-nginx/domain._.webroots.amount",
 	q="caraneer-config-nginx/domain." ~ loop.index0 ~ ".webroots.amount"
@@ -24,11 +28,12 @@
 		"location",
 		"folder",
 		"autoindex",
+		"use_alias"
 	],
 	amount_invalid_message="caraneer-config-nginx/location-amount-invalid"
 ) %}
 	location {{ location_entry.location }} {
 		try_files $uri $uri/ =404;
-		root {{ location_entry.folder }};{% if location_entry.autoindex %} autoindex on;{% endif %}
+		{% if location_entry.use_alias %}alias{% else %}root{% endif %} {{ location_entry.folder }};{% if location_entry.autoindex %} autoindex on;{% endif %}
 	}
 {%- endfor -%}
