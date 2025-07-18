@@ -24,6 +24,9 @@ if [ "$1" = "configure" ]; then
 	acmetool quickstart --batch --response-file="$RESPONSE_FILE"
 	/etc/caraneer-config-acmetool/domains.sh
 
+	install -D -m 0755 /usr/share/caraneer-config-acmetool/hooks/20-fix-nginx-perms /usr/lib/acmetool/hooks/20-fix-nginx-perms
+	/usr/lib/acmetool/hooks/20-fix-nginx-perms || true
+
 	# Restore desired settings
 	sed -i -E "s/(\"$KEY\": )\"[^\"]*\"/\1\"$ORIGINAL_VALUE\"/" "$RESPONSE_FILE"
 	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
