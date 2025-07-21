@@ -33,7 +33,7 @@
 	amount_invalid_message="caraneer-config-nginx/location-amount-invalid"
 ) %}
 	location {{ location_entry.location }} {
-		try_files $uri $uri/ =404;
+		{% if not location_entry.use_alias %}try_files $uri $uri/ =404;{% endif %}
 		{% if location_entry.use_alias %}alias{% else %}root{% endif %} {{ location_entry.folder }};{% if location_entry.autoindex %} autoindex on;{% endif %}
 	}
 {%- endfor -%}

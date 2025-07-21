@@ -5,7 +5,7 @@ SOURCEDIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P);
 WORKDIR="$(mktemp -d -t acmetool-deb.XXXXXXXXXX)"
 echo "WORKDIR=$WORKDIR";
 PKGROOT="$WORKDIR/pkg"
-version="0.2.2-1"
+version="0.2.3-1"
 
 echo "Preparing package directory..."
 mkdir -p "$PKGROOT";
@@ -14,6 +14,7 @@ mkdir -p "$PKGROOT";
 cp -r "$SOURCEDIR/DEBIAN" "$PKGROOT/DEBIAN"
 mkdir -p "$PKGROOT/usr/share/caraneer-config-acmetool";
 cp -r "$SOURCEDIR/simconf-templates" "$PKGROOT/usr/share/caraneer-config-acmetool/templates"
+cp -r "$SOURCEDIR/hooks" "$PKGROOT/usr/share/caraneer-config-acmetool/hooks"
 simconf toml-to-template "$SOURCEDIR/templates.toml" "$PKGROOT/DEBIAN/templates"
 
 sed "s/VERSION_REPLACEME/$version/" "$SOURCEDIR/DEBIAN/control" > "$PKGROOT/DEBIAN/control"
