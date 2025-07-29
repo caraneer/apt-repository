@@ -77,8 +77,13 @@ while read -r LINE || [ -n "$LINE" ]; do
 
   # Skip early if already subscribed
   if psql "$LOCAL_DB" -tAc "SELECT 1 FROM pg_subscription WHERE subname = '$SUB_NAME';" | grep -q 1; then
-    echo "  🔁 Subscription already exists, skipping."
-    continue
+    if psql "$UPSTREAM_URI" -tAc "SELECT 1 FROM pg_subscription WHERE subname = '$SUB_NAME';" | grep -q 1; then
+      echo "  🔁 Subscription already exists, skipping."
+      continue
+    fi
+    echo "  🔁 Subscription no longer exists on the remote server, reconnecting."
+    psql "$LOCAL_DB" -c "ALTER SUBSCRIPTION \"$SUB_NAME\" DISABLE";
+    psql "$LOCAL_DB" -c "DROP SUBSCRIPTION \"$SUB_NAME\"";
   fi
 
   echo "📡 Inspecting upstream publication..."
@@ -113,6 +118,7 @@ while read -r LINE || [ -n "$LINE" ]; do
     echo "  ⤵️  Dumping schema for published tables..."
     for T in $TABLES; do
       echo table "$T";
+      psql "$LOCAL_DB" -tAc "DROP TABLE IF EXISTS ${T}";
       generate_create_table "$UPSTREAM_URI" "$T"  >> "$TMP_SCHEMA";
       OWNER=$(get_owner "$UPSTREAM_URI" "$T");
       GRANTS=$(get_grants "$UPSTREAM_URI" "$T");

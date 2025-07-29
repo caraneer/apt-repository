@@ -1,0 +1,10 @@
+[Unit]
+Description=Caraneer PostgreSQL cleanup
+After=postgresql.service
+Wants=postgresql.service
+ConditionPathExistsGlob=/run/postgresql/.s.PGSQL.*
+
+[Service]
+Type=oneshot
+User=postgres
+ExecStart=/usr/bin/pg_cleanup_publications /etc/caraneer-config-postgresql/cleanup

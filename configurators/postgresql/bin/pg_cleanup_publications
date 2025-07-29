@@ -1,0 +1,28 @@
+#!/bin/bash
+set -euo pipefail
+
+INPUT_FILE="$1"
+
+while read -r LINE || [ -n "$LINE" ]; do
+	[[ -z "$LINE" || "$LINE" =~ ^# ]] && continue;
+	read -r local_db max_gb_lag <<< "$LINE";
+	max_gb_lag=$(expr "${max_gb_lag}" + 0 || (echo "Maximum GiB lag was not valid, using default of 20" >&2; echo 20));
+	psql "$local_db" <<EOF
+DO \$\$
+DECLARE
+	r RECORD;
+BEGIN
+	FOR r IN
+		SELECT slot_name
+		FROM pg_replication_slots
+		WHERE slot_type = 'logical'
+		AND NOT active
+		AND pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn) > ${max_gb_lag}::bigint * 1024 * 1024 * 1024
+	LOOP
+		RAISE NOTICE 'Dropping stale slot: %', r.slot_name;
+		PERFORM pg_drop_replication_slot(r.slot_name);
+	END LOOP;
+END\$\$;
+EOF
+
+done < "$INPUT_FILE"

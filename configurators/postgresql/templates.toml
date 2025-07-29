@@ -51,7 +51,7 @@ default = []
 
 [config."caraneer-config-postgresql/ssl_path"]
 type = "string"
-description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exist in the specified folder.\nIf either files don't exist, https will not be enabled."
+description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exist in the specified folder.\nIf either files don't exist, TLS will not be enabled."
 default = ""
 
 
@@ -74,3 +74,18 @@ default = ""
 type = "string"
 description.en = "postgresql URL for upstream source for publication #${index}"
 default = "postgresql://dbmaster:5433/mydb"
+
+[config."caraneer-config-postgresql/cleanup.amount"]
+type = "string"
+description.en = "Amount of databases to periodically check for stale logical replication subscriptions"
+default = 0
+
+[config."caraneer-config-postgresql/cleanup.template.database"]
+type = "string"
+description.en = "Local database name for cleanup check #${index}"
+default = "postgres"
+
+[config."caraneer-config-postgresql/cleanup.template.size_limit"]
+type = "string"
+description.en = "Maximum gigabyte lag for cleanup check #${index}\nMust be a whole number"
+default = "20"

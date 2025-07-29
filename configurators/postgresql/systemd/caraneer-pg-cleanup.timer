@@ -1,0 +1,10 @@
+[Unit]
+Description=Caraneer PostgreSQL cleanup timer
+
+[Timer]
+OnCalendar=Mon..Thu 06:00
+RandomizedDelaySec=12h
+Persistent=true
+
+[Install]
+WantedBy=timers.target
