@@ -1,0 +1,16 @@
+[Unit]
+Description=OpenTelemetry Collector Contrib
+Documentation=https://opentelemetry.io/
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=-/etc/otelcol-contrib/otelcol-contrib.conf
+ExecStart=/usr/bin/otelcol-contrib $OTELCOL_OPTIONS
+Restart=on-failure
+RestartSec=5s
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,54 @@
+#!/bin/bash
+set -e
+
+finish() { rm -f "/tmp/betterstack-otel.reconfigure" || true; }
+trap finish EXIT
+
+ARCH=$(dpkg --print-architecture)
+
+install_collector() {
+  if command -v otelcol-contrib >/dev/null 2>&1; then
+    return 0
+  fi
+
+  COLLECTOR_VERSION="$(dpkg-query -W -f='${Version}' betterstack-otel | cut -d'-' -f1)"
+  case "$ARCH" in
+    amd64)   GH_ARCH=amd64  ;;
+    arm64)   GH_ARCH=arm64  ;;
+    i386)    GH_ARCH=386    ;;
+    ppc64el) GH_ARCH=ppc64le;;
+    *) echo "betterstack-otel: unsupported arch $ARCH" >&2; return 1 ;;
+  esac
+
+  TARBALL="/usr/share/betterstack-otel/otelcol-contrib_${COLLECTOR_VERSION}_linux_${GH_ARCH}.tar.gz"
+
+  if ! [ -f "$TARBALL" ]; then
+    echo "betterstack-otel: fetching collector tarball …" >&2
+    curl -fsSL \
+      "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v${COLLECTOR_VERSION}/otelcol-contrib_${COLLECTOR_VERSION}_linux_${GH_ARCH}.tar.gz" \
+      -o "$TARBALL"
+  fi
+
+  mkdir -p /opt/otelcol-"${COLLECTOR_VERSION}"
+  tar -xzf "$TARBALL" -C /opt/otelcol-"${COLLECTOR_VERSION}"
+
+  ln -sf /opt/otelcol-"${COLLECTOR_VERSION}"/otelcol-contrib /usr/bin/otelcol-contrib
+}
+
+if [ "$1" = "configure" ]; then
+  if [ -z "${SIMCONF_STATUS:-}" ]; then
+    mkdir -p /etc/otelcol-contrib
+    exec -a "$0" simconf execute-templates \
+      $(if [ -f /tmp/betterstack-otel.reconfigure ]; then echo "--reconfigure"; fi) \
+      --verbose \
+      --exec-deb-script \
+      /usr/share/betterstack-otel/templates \
+      /etc/otelcol-contrib \
+      -- "$@"
+  fi
+
+  install_collector
+
+  systemctl daemon-reload        || true
+  systemctl enable --now otelcol-contrib || true
+fi

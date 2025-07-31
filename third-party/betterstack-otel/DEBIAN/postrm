@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+if [ "$1" = "purge" ]; then
+  systemctl disable --now otelcol-contrib || true
+
+  rm -rf /opt/otelcol-*          || true
+  rm -rf /etc/otelcol-contrib    || true
+
+  systemctl daemon-reload        || true
+fi

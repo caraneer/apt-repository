@@ -1,0 +1,9 @@
+default_language = "en"
+
+[config."betterstack-otel/source_token"]
+type = "string"
+description.en = "Better Stack source token"
+
+[config."betterstack-otel/ingest_host"]
+type = "string"
+description.en = "Better Stack ingest host"

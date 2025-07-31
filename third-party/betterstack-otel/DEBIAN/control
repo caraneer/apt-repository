@@ -1,0 +1,8 @@
+Package: betterstack-otel
+Version: VERSION_REPLACEME
+Section: admin
+Priority: optional
+Architecture: all
+Depends: curl, ca-certificates, systemd, simconf (>=0.3.7), simconf (<<0.5.0)
+Maintainer: <drakeluce@gmail.com>
+Description: Installs & configures the OpenTelemetry Collector for Better Stack.
