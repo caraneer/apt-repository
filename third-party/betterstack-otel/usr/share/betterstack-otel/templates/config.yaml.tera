@@ -8,6 +8,17 @@ receivers:
         endpoint: 0.0.0.0:4317
       http:
         endpoint: 0.0.0.0:4318
+  hostmetrics:
+    collection_interval: 30s
+    scrapers:
+      cpu: {}
+      memory: {}
+      disk: {}
+      filesystem: {}
+      network: {}
+      load: {}
+      paging: {}
+      process: {}
 
 exporters:
   otlphttp/betterstack:
@@ -21,7 +32,7 @@ processors:
 service:
   pipelines:
     metrics/betterstack:
-      receivers: [otlp]
+      receivers: [otlp, hostmetrics]
       processors: [batch]
       exporters: [otlphttp/betterstack]
     logs/betterstack:
