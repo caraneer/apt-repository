@@ -1,4 +1,14 @@
 sources:
+  otel_{{ get_answer(q="caraneer-config-vector/sink_token") }}:
+    type: opentelemetry
+    grpc:
+      address: 127.0.0.1:4317
+    http:
+      address: 127.0.0.1:4318
+      headers: []
+      keepalive:
+        max_connection_age_jitter_factor: 0.1
+        max_connection_age_secs: 300
   better_stack_apache_logs_{{ get_answer(q="caraneer-config-vector/sink_token") }}:
     type: "file"
     read_from: "beginning"
@@ -1018,7 +1028,7 @@ sinks:
     auth:
       strategy: "bearer"
       token: {{ get_answer(q="caraneer-config-vector/sink_token") | toml_encode_value }}
-    inputs: ["better_stack_apache_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_nginx_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_postgresql_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_mysql_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_mongodb_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_redis_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_auth_log_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_ufw_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_docker_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_other_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}"]
+    inputs: ["better_stack_apache_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_nginx_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_postgresql_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_mysql_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_mongodb_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_redis_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_auth_log_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_ufw_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_docker_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_other_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}", "otel_{{ get_answer(q="caraneer-config-vector/sink_token") }}.logs","otel_{{ get_answer(q="caraneer-config-vector/sink_token") }}.traces"]
 
   better_stack_http_metrics_sink_{{ get_answer(q="caraneer-config-vector/sink_token") }}:
     type: "http"
@@ -1030,4 +1040,4 @@ sinks:
     auth:
       strategy: "bearer"
       token: {{ get_answer(q="caraneer-config-vector/sink_token") | toml_encode_value }}
-    inputs: ["better_stack_apache_metrics_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_nginx_metrics_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_docker_metrics_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_host_metrics_{{ get_answer(q="caraneer-config-vector/sink_token") }}"]
+    inputs: ["better_stack_apache_metrics_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_nginx_metrics_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_docker_metrics_parser_{{ get_answer(q="caraneer-config-vector/sink_token") }}","better_stack_host_metrics_{{ get_answer(q="caraneer-config-vector/sink_token") }}","otel_{{ get_answer(q="caraneer-config-vector/sink_token") }}.metrics"]
