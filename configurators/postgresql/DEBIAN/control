@@ -3,7 +3,7 @@ Version: VERSION_REPLACEME
 Section: admin
 Priority: optional
 Architecture: all
-Depends: postgresql-16 | postgresql-15 | postgresql-14, simconf (>=0.3.7), simconf (<<0.5.0), jq
+Depends:postgresql-17 | postgresql-16 | postgresql-15 | postgresql-14, simconf (>=0.3.7), simconf (<<0.5.0), jq
 Maintainer: Aritz Beobide-Cardinal <aritz@caraneer.ca>
 Description: Caraneer opinionated PostgreSQL config with replication support
  This package configures PostgreSQL with managed WAL settings,

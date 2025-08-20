@@ -93,6 +93,7 @@ if [ "$1" = "configure" ] && [ -z "$2" ]; then
 	systemctl start "postgresql@${postgresql_version}-caraneer.service" || true;
 	systemctl enable "caraneer-pg-cleanup.timer" || true;
 	systemctl start "caraneer-pg-cleanup.timer" || true;
+	dpkg-trigger --no-await caraneer-configured-postgresql
 fi;
 if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
 	if systemctl is-active --quiet "postgresql@${postgresql_version}-caraneer.service"; then
