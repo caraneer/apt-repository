@@ -6,7 +6,7 @@ INPUT_FILE="$1"
 while read -r LINE || [[ -n "$LINE" ]]; do
   [[ -z "$LINE" || "$LINE" =~ ^# ]] && continue
 
-  read -r USERNAME ROLELIST ATTRIBUTES PASSWORD <<< "$LINE"
+  read -r USERNAME ROLELIST ATTRIBUTES HAS_OWNED_SCHEMA PASSWORD <<< "$LINE"
 
   echo "👤 Processing user: $USERNAME"
 
@@ -76,6 +76,12 @@ while read -r LINE || [[ -n "$LINE" ]]; do
     \$\$;"
     psql -d postgres -c "GRANT $ROLE TO $USERNAME;"
   done
+
+  # 3. Create schema if needed
+  if [[ "$HAS_OWNED_SCHEMA" = "1" ]]; then
+    psql -d postgres -c "CREATE SCHEMA IF NOT EXISTS AUTHORIZATION $USERNAME;";
+  fi
+  
 
   echo "✅ Finished $USERNAME"
 done < "$INPUT_FILE"

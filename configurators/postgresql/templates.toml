@@ -14,6 +14,11 @@ type = "string"
 description.en = "Role #${index} name"
 default = ""
 
+[config."caraneer-config-postgresql/roles.template.has_owned_schema"]
+type = "boolean"
+description.en = "Role #${index} has owned schema"
+default = false
+
 [config."caraneer-config-postgresql/roles.template.auth"]
 type = { "multi_choice" = [
 	{ value = "localhost", description.en = "Password (scram-sha-256) from localhost" },

@@ -9,8 +9,9 @@
 		"password",
 		"databases",
 		"roles",
-		"options"
+		"options",
+		"has_owned_schema"
 	],
 	amount_invalid_message="caraneer-config-postgresql/amount-invalid"
-) %}{{ entry.name }} {% if entry.roles %}{{ entry.roles }}{% else %},{% endif %} {% if entry.options %}{{ entry.options | join(sep=",")}}{% else %},{% endif %} {{ entry.password }}
+) %}{{ entry.name }} {% if entry.roles %}{{ entry.roles }}{% else %},{% endif %} {% if entry.options %}{{ entry.options | join(sep=",")}}{% else %},{% endif %} {% if entry.has_owned_schema %}1{% else %}0{% endif %} {{ entry.password }}
 {% endfor %}
