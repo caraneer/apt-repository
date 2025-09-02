@@ -121,6 +121,9 @@ synchronous_commit = off
 max_wal_size = 2GB
 min_wal_size = 80MB
 
+max_replication_slots = 100
+max_wal_senders = 200
+wal_sender_timeout = 600000
 
 #------------------------------------------------------------------------------
 # REPORTING AND LOGGING
