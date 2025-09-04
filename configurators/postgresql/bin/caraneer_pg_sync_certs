@@ -1,0 +1,120 @@
+#!/bin/bash
+set -euo pipefail
+
+load_env() {
+  local env_file="/etc/caraneer-config-postgresql/env"
+  if [[ -f "$env_file" ]]; then
+    . "$env_file"
+  fi
+  MODE="${CARANEER_PG_SSL_MODE:-off}"
+  DOMAIN="${CARANEER_PG_SSL_DOMAIN:-}"
+}
+
+find_pg_version() {
+  POSTGRESQL_VERSION="$(find /etc/postgresql -mindepth 1 -maxdepth 1 -exec basename {} \; | sort -nr | head -n 1 || true)"
+  [[ -n "${POSTGRESQL_VERSION:-}" ]] || { echo "Unable to determine PostgreSQL version; skipping reload"; RELOAD_OK=0; return; }
+  RELOAD_OK=1
+}
+
+install_hook_certbot() {
+  local hook="/etc/letsencrypt/renewal-hooks/deploy/50-caraneer-postgresql"
+  mkdir -p "$(dirname "$hook")"
+  cat > "$hook" <<'EOF'
+#!/bin/sh
+# Certbot deploy hook for Caraneer PostgreSQL
+if command -v caraneer_pg_sync_certs >/dev/null 2>&1; then
+  caraneer_pg_sync_certs || true
+fi
+EOF
+  chmod 0755 "$hook"
+}
+
+install_hook_acmetool() {
+  for dir in /usr/lib/acme/hooks/deploy /etc/acme/hooks/deploy; do
+    if [ -d "$dir" ]; then
+      local hook="$dir/50-caraneer-postgresql"
+      cat > "$hook" <<'EOF'
+#!/bin/sh
+# acmetool deploy hook for Caraneer PostgreSQL
+if command -v caraneer_pg_sync_certs >/dev/null 2>&1; then
+  caraneer_pg_sync_certs || true
+fi
+EOF
+      chmod 0755 "$hook"
+    fi
+  done
+}
+
+copy_if_changed() {
+  local src="$1" dst="$2" owner="$3" group="$4" mode="$5"
+  if [ ! -f "$src" ]; then
+    echo "Source missing: $src"
+    return 1
+  fi
+  if [ ! -f "$dst" ] || ! cmp -s "$src" "$dst"; then
+    install -o "$owner" -g "$group" -m "$mode" -T "$src" "$dst"
+    CHANGED=1
+  fi
+}
+
+reload_pg_if_needed() {
+  [ "${CHANGED:-0}" -eq 0 ] && return 0
+  [ "${RELOAD_OK:-0}" -eq 1 ] || return 0
+  systemctl try-reload-or-restart "postgresql@${POSTGRESQL_VERSION}-caraneer.service" || true
+}
+
+main() {
+  load_env
+
+  if [ "$MODE" = "off" ] || [ -z "${DOMAIN:-}" ]; then
+    echo "TLS mode off or domain not set; nothing to do."
+    exit 0
+  fi
+
+  local src_fullchain="" src_privkey=""
+  case "$MODE" in
+    certbot)
+      src_fullchain="/etc/letsencrypt/live/${DOMAIN}/fullchain.pem"
+      src_privkey="/etc/letsencrypt/live/${DOMAIN}/privkey.pem"
+      ;;
+    acmetool)
+      for base in /var/lib/acme /var/lib/acmetool; do
+        [ -d "$base" ] || continue
+        if [ -f "$base/live/${DOMAIN}/fullchain" ] && [ -f "$base/live/${DOMAIN}/privkey" ]; then
+          src_fullchain="$base/live/${DOMAIN}/fullchain"
+          src_privkey="$base/live/${DOMAIN}/privkey"
+          break
+        fi
+        if [ -f "$base/live/${DOMAIN}/fullchain.pem" ] && [ -f "$base/live/${DOMAIN}/privkey.pem" ]; then
+          src_fullchain="$base/live/${DOMAIN}/fullchain.pem"
+          src_privkey="$base/live/${DOMAIN}/privkey.pem"
+          break
+        fi
+      done
+      ;;
+    *)
+      echo "Unknown TLS mode '$MODE'"; exit 0;;
+  esac
+
+  if [ -z "$src_fullchain" ] || [ -z "$src_privkey" ]; then
+    echo "Could not locate source certs for ${MODE}/${DOMAIN}; skipping."
+    exit 0
+  fi
+
+  local dst_dir="/etc/caraneer-config-postgresql/certs/${DOMAIN}"
+  mkdir -p "$dst_dir"
+  chown root:postgres "$dst_dir"
+  chmod 0750 "$dst_dir"
+
+  CHANGED=0
+  copy_if_changed "$src_fullchain" "${dst_dir}/fullchain.pem" root postgres 0640 || true
+  copy_if_changed "$src_privkey" "${dst_dir}/privkey.pem" postgres postgres 0600 || true
+
+  find_pg_version
+  reload_pg_if_needed
+
+  if [ "$MODE" = "certbot" ]; then install_hook_certbot; fi
+  if [ "$MODE" = "acmetool" ]; then install_hook_acmetool; fi
+}
+
+main "$@"
