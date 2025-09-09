@@ -14,7 +14,8 @@
 		"password",
 		"databases",
 		"roles",
-		"options"
+		"options",
+		"has_owned_schema"
 	],
 	amount_invalid_message="caraneer-config-postgresql/amount-invalid"
 ) -%}
