@@ -69,6 +69,7 @@ if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
 		openssl dhparam -out "$DHPARAM_PATH" 4096
 	fi;
 	ln -sf "/etc/caraneer-config-postgresql/postgresql" "/etc/postgresql/${postgresql_version}/caraneer";
+	/usr/bin/caraneer_pg_sync_certs || true
 	chown -R postgres:postgres "/etc/caraneer-config-postgresql/postgresql";
 	chown postgres:postgres "/etc/caraneer-config-postgresql/replications";
 	chown postgres:postgres "/etc/caraneer-config-postgresql/roles";

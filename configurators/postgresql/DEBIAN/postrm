@@ -1,18 +1,33 @@
 #!/bin/bash
 set -e
-if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
-	systemctl disable "postgresql@${postgresql_version}-caraneer.service" || true;
-	systemctl stop "postgresql@${postgresql_version}-caraneer.service" || true;
-fi;
+postgresql_version="$(find /etc/postgresql -mindepth 1 -maxdepth 1 -exec basename {} \; | sort -nr | head -n 1 || true)"
+
+case "$1" in
+  remove|purge)
+    if [ -n "$postgresql_version" ]; then
+      systemctl disable "postgresql@${postgresql_version}-caraneer.service" || true
+      systemctl stop "postgresql@${postgresql_version}-caraneer.service" || true
+    fi
+
+    systemctl disable "caraneer-pg-cleanup.timer" || true
+    systemctl stop "caraneer-pg-cleanup.timer" || true
+    ;;
+esac
+
 if [ "$1" = "purge" ]; then
-	if [ -z "${SIMCONF_STATUS:-}" ]; then
-		exec -a "$0" simconf purge \
-			--exec-deb-script \
-			-- "$@";
-	fi;
-	postgresql_version="$(find /etc/postgresql -mindepth 1 -maxdepth 1 -exec basename {} \; | sort -nr | head -n 1)";
-	rm -rf "/etc/caraneer-config-postgresql"
-	rm -rf "/etc/postgresql/${postgresql_version}/caraneer";
-	# TODO: If simconf gets the ability to ask questions in "purge" mode, make this removal optional
-	rm -rf "/var/lib/postgresql/${postgresql_version}/caraneer";
-fi;
+  if [ -z "${SIMCONF_STATUS:-}" ]; then
+    simconf purge --exec-deb-script -- "$@" || true
+  fi
+
+  rm -rf "/etc/caraneer-config-postgresql"
+  if [ -n "$postgresql_version" ]; then
+    rm -rf "/etc/postgresql/${postgresql_version}/caraneer"
+    rm -rf "/var/lib/postgresql/${postgresql_version}/caraneer"
+  fi
+
+  rm -f /etc/letsencrypt/renewal-hooks/deploy/50-caraneer-postgresql
+  rm -f /usr/lib/acme/hooks/deploy/50-caraneer-postgresql
+  rm -f /etc/acme/hooks/deploy/50-caraneer-postgresql
+
+  systemctl daemon-reload || true
+fi

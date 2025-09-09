@@ -54,11 +54,19 @@ type = { "multi_choice" = [
 description.en = "Attributes for role #${index}"
 default = []
 
-[config."caraneer-config-postgresql/ssl_path"]
-type = "string"
-description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exist in the specified folder.\nIf either files don't exist, TLS will not be enabled."
-default = ""
+[config."caraneer-config-postgresql/ssl_mode"]
+type = { "single_choice" = [
+  { value = "off", description.en = "Disable TLS for PostgreSQL" },
+  { value = "certbot", description.en = "Enable TLS using Certbot (Let's Encrypt) certs" },
+  { value = "acmetool", description.en = "Enable TLS using acmetool certs" },
+] }
+description.en = "TLS termination mode for PostgreSQL"
+default = "off"
 
+[config."caraneer-config-postgresql/ssl_domain"]
+type = "string"
+description.en = "Domain name used for TLS certificate (required if TLS is enabled)"
+default = ""
 
 [config."caraneer-config-postgresql/replication.amount"]
 type = "string"
