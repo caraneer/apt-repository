@@ -41,7 +41,7 @@ server {
 }
 server {
 	listen 443 quic {% if first_ssl %}reuseport{% endif %};
-	listen [::]:443 quic {% if first_ssl %}reuseport{% set first_ssl = false %}{% endif %};
+	listen [::]:443 quic {% if first_ssl %}reuseport{% set_global first_ssl = false %}{% endif %};
 	listen 443 ssl;
 	listen [::]:443 ssl;
 	http2 on;
