@@ -91,14 +91,14 @@ maintenance_work_mem = 1MB
 logical_decoding_work_mem = 1MB	# min 64kB
 max_stack_depth = 1MB
 {%- elif extra.system_memory_kb < 8388608 %}
-shared_buffers = {{ extra.system_memory_kb / 4 }}kB
+shared_buffers = {{ extra.system_memory_kb / 3 }}kB
 temp_buffers = 8MB
 work_mem = 8MB
 maintenance_work_mem = 64MB
 logical_decoding_work_mem = 64MB
 max_stack_depth = 2MB
 {%- else %}
-shared_buffers = 2GB
+shared_buffers = 3GB
 temp_buffers = 8MB
 work_mem = 32MB
 maintenance_work_mem = 128MB
@@ -119,12 +119,17 @@ hash_mem_multiplier = 2.0
 wal_level = logical
 synchronous_commit = off
 
-max_wal_size = 2GB
-min_wal_size = 80MB
+max_wal_size = 4GB
+min_wal_size = 40MB
 
-max_replication_slots = 100
-max_wal_senders = 200
-wal_sender_timeout = 600000
+max_replication_slots = 150
+max_wal_senders = 300
+wal_sender_timeout = 900000
+
+max_logical_replication_workers = 16
+max_worker_processes = 24
+max_sync_workers_per_subscription = 4
+max_parallel_apply_workers_per_subscription = 4
 
 #------------------------------------------------------------------------------
 # REPORTING AND LOGGING
