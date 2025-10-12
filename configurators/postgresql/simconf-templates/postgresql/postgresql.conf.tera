@@ -91,7 +91,7 @@ maintenance_work_mem = 1MB
 logical_decoding_work_mem = 1MB	# min 64kB
 max_stack_depth = 1MB
 {%- elif extra.system_memory_kb < 8388608 %}
-shared_buffers = {{ extra.system_memory_kb / 3 }}kB
+shared_buffers = {{ extra.system_memory_kb / 3 | round }}kB
 temp_buffers = 8MB
 work_mem = 8MB
 maintenance_work_mem = 64MB
