@@ -2,7 +2,7 @@
 Description=Caraneer PostgreSQL cleanup timer
 
 [Timer]
-OnCalendar=Mon..Thu 06:00
+OnCalendar=Mon..Fri 06:00
 RandomizedDelaySec=12h
 Persistent=true
 
