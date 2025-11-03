@@ -20,6 +20,7 @@ echo "Setting permissions on private key…"
 chmod 600 ~/.ssh/id_rsa
 
 echo "Mounting remote directory via s3fs…"
+mkdir -p "${S3_MOUNT_PATH}"
 s3fs "${S3_BUCKET_NAME}" "${S3_MOUNT_PATH}" \
     -o "url=${S3_URL}" \
     -o use_path_request_style \
