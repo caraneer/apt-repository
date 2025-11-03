@@ -31,13 +31,13 @@ jobs:
           git config --global commit.gpgsign true
           git config --global tag.gpgsign true
 
-      - name: Build & install bootstrap debs (mount via SSHFS)
+      - name: Build & install bootstrap debs (mount via S3FS)
         env:
-          SSH_HOST: ${{ vars.SSH_HOST }}
-          SSH_KNOWN_HOST: ${{ vars.SSH_KNOWN_HOST }}
-          SSH_USER: ${{ vars.SSH_USER }}
-          SSH_REMOTE_PATH: ${{ vars.SSH_REMOTE_PATH }}
-          SSH_MOUNT_PATH: /tmp/caraneer-infra-shared
+          S3_URL: https://s3.bhs.io.cloud.ovh.net/
+          S3_MOUNT_PATH: /tmp/caraneer-apt-repo
+          S3_BUCKET_NAME: caraneer-apt-repo
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           SSH_KEY: ${{ secrets.SSH_KEY }}
         run: |
           ./scripts/bootstrap.sh
@@ -45,6 +45,6 @@ jobs:
       - name: Populate apt repo
         env:
           GH_TOKEN: ${{ github.token }}
-          WEBROOT_DIR: /tmp/caraneer-infra-shared/www/deb
+          WEBROOT_DIR: /tmp/caraneer-apt-repo
         run: |
           ./scripts/start.sh

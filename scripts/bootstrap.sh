@@ -8,27 +8,24 @@ echo "SCRIPT_DIR is $SCRIPT_DIR"
 echo "Updating apt cache…"
 sudo apt update
 
-echo "Installing sshfs (no-install-recommends)…"
-sudo apt install -y --no-install-recommends sshfs || true
+echo "Installing s3fs (no-install-recommends)…"
+sudo apt install -y --no-install-recommends s3fs || true
 
 echo "Ensuring ~/.ssh exists…"
 mkdir -p ~/.ssh
 
 echo "Writing SSH key to ~/.ssh/id_rsa…"
 echo "${SSH_KEY}" > ~/.ssh/id_rsa
-echo "${SSH_KNOWN_HOST}" > ~/.ssh/known_hosts
 echo "Setting permissions on private key…"
 chmod 600 ~/.ssh/id_rsa
-chmod 600 ~/.ssh/known_hosts
 
-echo "Ensuring mount point exists at ${SSH_MOUNT_PATH}…"
-mkdir -p "${SSH_MOUNT_PATH}"
-
-echo "SSH_USER:   '${SSH_USER:-<unset>}'"
-echo "SSH_HOST:   '${SSH_HOST:-<unset>}'"
-
-echo "Mounting remote directory via sshfs…"
-sshfs "${SSH_USER}@${SSH_HOST}:${SSH_REMOTE_PATH}" "${SSH_MOUNT_PATH}"
+echo "Mounting remote directory via s3fs…"
+s3fs "${S3_BUCKET_NAME}" "${S3_MOUNT_PATH}" \
+    -o "url=${S3_URL}" \
+    -o use_path_request_style \
+    -o default_acl=public-read \
+    -o update_parent_dir_stat \
+    ;
 
 echo "Discovering local .deb files in ${SCRIPT_DIR}/../bootstrap_pkgs…"
 readarray -t LOCAL_DEBS < <(find "${SCRIPT_DIR}/../bootstrap_pkgs" \
