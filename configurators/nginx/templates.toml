@@ -117,6 +117,11 @@ type = "string"
 description.en = "${domain} proxy #${index} upstream path suffix."
 default = "/"
 
+[config."caraneer-config-nginx/domain._.proxies.template.websocket"]
+type = "boolean"
+description.en = "${domain} proxy #${index} uses websockets"
+default = false
+
 [config."caraneer-config-nginx/location-amount-invalid"]
 type = "error_message"
 description.en = "Invalid amount\nThe amount of domains must be an integer greater than 0 or equal to 0"
