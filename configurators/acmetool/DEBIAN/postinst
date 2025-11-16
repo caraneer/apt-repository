@@ -34,5 +34,7 @@ if [ "$1" = "configure" ]; then
     fi
 	acmetool quickstart --batch --response-file="$RESPONSE_FILE"
 	rm -f "/tmp/caraneer-config-acmetool.reconfigure" || true;
+	deb-systemd-invoke start acmetool.timer || true;
+	deb-systemd-invoke enable acmetool.timer || true;
 	dpkg-trigger --no-await caraneer-configured-acmetool
 fi;
