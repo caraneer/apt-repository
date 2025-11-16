@@ -37,10 +37,6 @@
 
 		# Enable websocket support if the connection is going to be upgraded
 		{% if location_entry.websocket -%}
-		map $http_upgrade $connection_upgrade {
-			default upgrade;
-			'' "";
-		}
 		proxy_set_header Upgrade $http_upgrade;
 		proxy_set_header Connection $connection_upgrade;
 		{%- else -%}
