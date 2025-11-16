@@ -14,6 +14,10 @@
 	template="caraneer-config-nginx/domain._.proxies.template.upstream_path",
 	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.template.upstream_path"
 ) -%}
+{%- set _ = template_alias(
+	template="caraneer-config-nginx/domain._.proxies.template.websocket",
+	alias="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.template.websocket"
+) -%}
 {%- set _ = register_question(
 	template="caraneer-config-nginx/domain._.proxies.amount",
 	q="caraneer-config-nginx/domain." ~ loop.index0 ~ ".proxies.amount"
