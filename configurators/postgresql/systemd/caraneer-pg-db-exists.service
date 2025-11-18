@@ -1,0 +1,11 @@
+[Unit]
+Description=Caraneer Ensure DB exists
+Before=postgresql.service
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/pg_ensure_caraneer_db_exists
+
+[Install]
+WantedBy=multi-user.target

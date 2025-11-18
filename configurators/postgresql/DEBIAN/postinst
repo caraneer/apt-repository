@@ -99,6 +99,7 @@ if [ "$1" = "configure" ] || [ "$1" = "triggered" ]; then
 	if systemctl is-active --quiet "postgresql@${postgresql_version}-caraneer.service"; then
 		sudo -u postgres pg_batch_roles /etc/caraneer-config-postgresql/roles || true;
 		sudo -u postgres pg_batch_subscribe /etc/caraneer-config-postgresql/replications || true;
+		systemctl enable "caraneer-pg-db-exists.service" || true;
 		systemctl restart "postgresql@${postgresql_version}-caraneer.service" || true;
 	fi;
 fi;

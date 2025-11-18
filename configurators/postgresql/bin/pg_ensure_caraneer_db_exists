@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+# Debian/Ubuntu have a directory for each major version of postgresql. Pretty convenient.
+postgresql_version="$(find /etc/postgresql -mindepth 1 -maxdepth 1 -exec basename {} \; | sort -nr | head -n 1)";
+database_dir="/var/lib/postgresql/${postgresql_version}/caraneer";
+
+if [ -d "${database_dir}" ]; then
+	exit 0;
+fi;
+
+mkdir -p "${database_dir}";
+chown postgres:postgres "${database_dir}";
+sudo -u postgres "/usr/lib/postgresql/${postgresql_version}/bin/initdb" "${database_dir}";
+systemctl start "postgresql@${postgresql_version}-caraneer.service";
+sudo -u postgres pg_batch_roles /etc/caraneer-config-postgresql/roles;
+sudo -u postgres pg_batch_subscribe /etc/caraneer-config-postgresql/replications;
