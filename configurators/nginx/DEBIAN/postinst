@@ -30,6 +30,15 @@ UE9kiiHqhiSdw6VWyMHSG1opHUVbkirvvlqhEUxg/vqiFhS++uFAVR4gEMp/UMJ8
 yZ6zpRe9nuuZuPWFWPsdQwBh+gc6U//2StKYVR2aER91cDqwvbrHm58CAQI=
 -----END DH PARAMETERS-----" > "$DHPARAM_PATH";
 	fi;
+	if ! [ -f /etc/systemd/system/nginx.service.d/00-caraneer.conf ]; then
+		mkdir -p /etc/systemd/system/nginx.service.d/;
+		echo "# Created by caraneer-config-nginx" > "/etc/systemd/system/nginx.service.d/00-caraneer.conf";
+		echo "[Service]" >> "/etc/systemd/system/nginx.service.d/00-caraneer.conf";
+		echo "LimitNOFILE=infinity" >> "/etc/systemd/system/nginx.service.d/00-caraneer.conf";
+		echo "LimitNOFILESoft=infinity" >> "/etc/systemd/system/nginx.service.d/00-caraneer.conf";
+		echo "LimitMEMLOCK=infinity" >> "/etc/systemd/system/nginx.service.d/00-caraneer.conf";
+	fi;
+
 	if deb-systemd-helper deb-systemd-helper-enabled nginx.service; then
 		deb-systemd-invoke reload nginx.service || true
 	fi

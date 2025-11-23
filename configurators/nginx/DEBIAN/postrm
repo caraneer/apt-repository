@@ -6,4 +6,5 @@ if [ "$1" = "purge" ]; then
 			--exec-deb-script \
 			-- "$@";
 	fi;
+	rm -f /etc/systemd/system/nginx.service.d/00-caraneer.conf;
 fi;
