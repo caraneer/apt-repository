@@ -21,6 +21,11 @@ type = "string"
 description.en = "nginx domain #${index}"
 default = ""
 
+[config."caraneer-config-nginx/domain.template.aliases"]
+type = "string"
+description.en = "Additional space-separated server name aliases for domain #${index}"
+default = ""
+
 [config."caraneer-config-nginx/domain.template.ssl_path"]
 type = "string"
 description.en = "Path to SSL certificates.\nThe files (\"fullchain\" or \"fullchain.pem\") and (\"privkey\" or \"privkey.pem\") must both exist in the specified folder.\nIf either files don't exist, https will not be enabled."

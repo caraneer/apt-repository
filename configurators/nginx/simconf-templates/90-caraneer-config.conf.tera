@@ -14,6 +14,7 @@ map $http_upgrade $connection_upgrade {
 	q_prefix="caraneer-config-nginx/domain",
 	q_object_keys=[
 		"name",
+		"aliases",
 		"ssl_path",
 		"404_page",
 		"410_page",
@@ -37,7 +38,7 @@ map $http_upgrade $connection_upgrade {
 	{%- endif %}
 server {
 	{%- if is_file(path=ssl_cert_file) and is_file(path=ssl_key_file) %}
-	server_name {{ domain_entry.name }};
+	server_name {{ domain_entry.name }}{% if domain_entry.aliases %} {{ domain_entry.aliases }}{% endif %};
 	listen 80;
 	listen [::]:80;
 	return 301 https://$host$request_uri;
@@ -63,7 +64,7 @@ server {
 	listen 80;
 	listen [::]:80;
 	{%- endif %}
-	server_name {{ domain_entry.name }};
+	server_name {{ domain_entry.name }}{% if domain_entry.aliases %} {{ domain_entry.aliases }}{% endif %};
 	client_max_body_size {{ domain_entry.client_max_body_size }};
 	{% if domain_entry.404_page %}error_page 404 {{ domain_entry.404_page }};{% endif %}
 	{% if domain_entry.410_page %}error_page 410 {{ domain_entry.410_page }};{% endif %}
